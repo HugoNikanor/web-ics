@@ -4,7 +4,10 @@
 ;;;
 ;;; Currently I'm working on getting ICS files properly read
 ;;; and the correct data extracted from them.
-
+;;;
+;;; What really needs to be done is find some easy way
+;;; to map|filter|<anything> on one field of a struct,
+;;; while letting the other just follow along for the ride.
 
 (add-to-load-path (string-append (getenv "HOME")
                                  "/lib/guile/"))
@@ -20,8 +23,10 @@
              (macros arrow)
 
              (ice-9 ftw)
+             (ice-9 curried-definitions)
              ;; (ice-9 rdelim)
              )
+
 
 (define cal-path
   (string-append
@@ -69,6 +74,10 @@ the file extension <ext>"
                 (comperator (get a)
                             (get b)))))
 
+(define ((extract field) item)
+  (ics-property-value
+   (ics-object-property-ref item field)))
+
 ;;; This probably work, but since I think my event list
 ;;; is litered with timezone items I can't really test it
 ;;; right now.
@@ -79,17 +88,43 @@ object in tha cadr of each element of items."
        (map car items)
        (map (compose
              func
-             (lambda (item)
-               (ics-property-value
-                (ics-object-property-ref item property-name)))
+             (extract property-name)
              cadr)
             items)))
 
-(define (filter-on-property property-name pred items)
-  (map (cut list (car items <))))
+(define (filter-on-property property-name func items)
+  (filter (lambda (item)
+            (apply (lambda (head tail)
+                     (and=> (func tail)
+                            (cut list head <>)))
+                   item))
+          (map list
+               (map car items)
+               (map (compose (extract property-name)
+                             cadr)
+                    items))))
+
+;;; SUMMARY är tydligen kort-beskrivning, och inte förklaring
+
+(map (compose ;; ics-property-value
+      (cut ics-object-property-ref <> "SEQUENCE")
+      cadr)
+     fname-obj-list)
+
+(filter-on-property identity "SEQUENCE" fname-obj-list)
 
 
-(map-on-property identity "DTSTART" fname-obj-list) ERRORError: retort-syntax
+(map ics-property-name
+     (ics-object-properties (cadr (car fname-obj-list))))
+("SEQUENCE" "UID" "DTSTAMP" "DTEND" "DTSTART" "SUMMARY")
+
+
+(map-on-property identity "DTSTART" fname-obj-list)
+
+(catch 'misc-error
+  (lambda ()
+    (string->date "20180220" "~Y~m~dT~H~M~S"))
+  list)
 
 (cut string->date <> "~Y~m~dT~H~M~S")
 (sort* fname-obj-list time<?
