@@ -4,7 +4,7 @@
   #:use-module (srfi srfi-26)
   #:use-module (macros arrow)
   #:export (flatten inner intersperce file-extension sort*
-            fold-multiple unique))
+            fold-multiple unique group-by))
 
 (define (flatten tree)
   "Flattens a tree, same as printing the tree
@@ -56,3 +56,26 @@ Note that symbols are returned in oposite order that they are given."
                      left)))
              '()
              lst))
+
+(define (group-by func list)
+  "Equivalent to elisp's seq-group-by,
+also see guile's built in <partition> if only true/false
+groups are desired. This also doesn't sort the keys, so
+the return order of the keys is undefined."
+  (receive (keys alist)
+      (fold-multiple
+       (lambda (item keys alist)
+         (let ((key (func item)))
+           (values (cons key keys)
+                   (acons key item alist))))
+       list
+       '() '())
+    ;; This secound part filters out all values that have each key.
+    ;; It does so one by one, and could probably do more at once.
+    (map (lambda (key)
+           (cons key
+                 (map cdr
+                      (filter (lambda (item)
+                                (eqv? key (car item)))
+                              alist))))
+         (unique keys))))
