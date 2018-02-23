@@ -1,6 +1,7 @@
 (define-module (util)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-8) ; receive
+  #:use-module (srfi srfi-26)
   #:use-module (macros arrow)
   #:export (flatten inner intersperce file-extension sort*
             fold-multiple unique))
