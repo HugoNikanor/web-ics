@@ -4,10 +4,6 @@
 ;;;
 ;;; Currently I'm working on getting ICS files properly read
 ;;; and the correct data extracted from them.
-;;;
-;;; What really needs to be done is find some easy way
-;;; to map|filter|<anything> on one field of a struct,
-;;; while letting the other just follow along for the ride.
 
 (add-to-load-path (string-append (getenv "HOME")
                                  "/lib/guile/"))
@@ -30,6 +26,8 @@
              (ice-9 curried-definitions)
              (ice-9 format)
              ;; (ice-9 rdelim)
+
+             (util)
              )
 
 (define-class <ics-path-object> (<ics-object>)
@@ -52,7 +50,7 @@
   (newline)
   (next-method))
 
-(define cal-path
+(define *cal-path*
   (string-append
    (getenv "HOME")
    "/.calendars/b85ba2e9-18aa-4451-91bb-b52da930e977/"))
@@ -65,10 +63,6 @@
 ;;                                children))
 ;;              ((regular) name)))
 ;;          node))
-
-(define (file-extension filename)
-  "Returns the file extension of a filename"
-  (last (string-split filename #\.)))
 
 (define (get-files-in-dir path ext)
   "Returns a list of all direct children of <path> which have
@@ -90,7 +84,7 @@ instead of the new value"
 ;;; list of all ics-objects in filename
 ;;; parsed as if each file only had one VEVENT
 ;;; origininal path of file stored in object as well
-(define ics-objs
+(define *ics-objs*
   (map (lambda (filename)
          (-> filename
              open-input-file
@@ -100,23 +94,45 @@ instead of the new value"
              car
              (change-class <ics-path-object>)
              (slot-set-ret! 'path filename)))
-       (get-files-in-dir cal-path "ics")))
-
-(define (sort* items comperator get)
-  "A sort function more in line with how python's sorted works"
-  (sort items (lambda (a b)
-                (comperator (get a)
-                            (get b)))))
+       (get-files-in-dir *cal-path* "ics")))
 
 (define ((extract field) item)
   "Get value of field in item"
   (ics-property-value
    (ics-object-property-ref item field)))
 
+;; (define (map-on-property property-name func items)
+;;   "This is probably redundant."
+;;   (map (compose func
+;;                 (extract property-name))
+;;        items))
+
 (define (filter-on-property property-name func items)
   "Filter, but only on lists of VEVENT's, and 
-(extract property-name) is run on the item before
+\(extract property-name) is run on the item before
 func recieves it."
   (filter (lambda (item)
             (func ((extract property-name) item)))
           items))
+
+
+;;; TODO
+;;; This currently only works for events where DTSTART
+;;; contains a time along with it's date, it needs to be
+;;; a lot more general in the future.
+(define (event-time ev)
+  "Returns a time object matching the time of the event.
+Currently does't check timezones, and assumes the current one"
+  (-> ev
+      ((extract "DTSTART"))
+      (string->date "~Y~m~dT~H~M~S")
+      date->time-utc))
+
+
+(define *limited-events*
+  (filter-on-property "DTSTART"
+                      (lambda (time)
+                        (=  15 (string-length time)))
+                      *ics-objs*))
+
+(define *sevs* (sort* *limited-events* time<? event-time)) 
