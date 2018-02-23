@@ -29,7 +29,7 @@ and removing all internal parethese."
   "Returns the file extension of a filename"
   (last (string-split filename #\.)))
 
-(define (sort* items comperator get)
+(define* (sort* items comperator #:optional (get identity))
   "A sort function more in line with how python's sorted works"
   (sort items (lambda (a b)
                 (comperator (get a)
@@ -50,8 +50,8 @@ Note that symbols are returned in oposite order that they are given."
   (pair-fold (lambda (pair left)
                (let ((token (car pair))
                      (right (cdr pair)))
-                 (if (not (or (memv token right)
-                              (memv token left)))
+                 (if (not (or (member token right)
+                              (member token left)))
                      (cons token left)
                      left)))
              '()
@@ -76,6 +76,6 @@ the return order of the keys is undefined."
            (cons key
                  (map cdr
                       (filter (lambda (item)
-                                (eqv? key (car item)))
+                                (equal? key (car item)))
                               alist))))
          (unique keys))))
