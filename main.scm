@@ -81,21 +81,6 @@ instead of the new value"
   (slot-set! obj slot value)
   obj)
 
-;;; list of all ics-objects in filename
-;;; parsed as if each file only had one VEVENT
-;;; origininal path of file stored in object as well
-(define *ics-objs*
-  (map (lambda (filename)
-         (-> filename
-             open-input-file
-             ics->scm
-             car
-             ics-object-components
-             car
-             (change-class <ics-path-object>)
-             (slot-set-ret! 'path filename)))
-       (get-files-in-dir *cal-path* "ics")))
-
 (define ((extract field) item)
   "Get value of field in item"
   (ics-property-value
@@ -128,6 +113,21 @@ Currently does't check timezones, and assumes the current one"
       (string->date "~Y~m~dT~H~M~S")
       date->time-utc))
 
+;;; list of all ics-objects in filename
+;;; parsed as if each file only had one VEVENT
+;;; origininal path of file stored in object as well
+(define *ics-objs*
+  (map (lambda (filename)
+         (-> filename
+             open-input-file
+             ics->scm
+             car
+             ics-object-components
+             car
+             (change-class <ics-path-object>)
+             (slot-set-ret! 'path filename)))
+       (get-files-in-dir *cal-path* "ics")))
+
 
 (define *limited-events*
   (filter-on-property "DTSTART"
@@ -135,4 +135,31 @@ Currently does't check timezones, and assumes the current one"
                         (=  15 (string-length time)))
                       *ics-objs*))
 
+;;; Sorted events
 (define *sevs* (sort* *limited-events* time<? event-time)) 
+
+(define (drop-time obj)
+  "Removes everything from hour and down from a date object"
+  (let ((nsecs 0)
+        (seconds 0)
+        (minutes 0)
+        (hours 0)
+        (date (date-day obj))
+        (month (date-month obj))
+        (year (date-year obj))
+        (zone-offset (date-zone-offset obj)))
+    (make-date nsecs seconds minutes hours date month year zone-offset)))
+
+(define (event->time ev)
+  (-> ev
+      ((extract "DTSTART"))
+      (string->date "~Y~m~dT~H~M~S")
+      drop-time
+      date->time-utc
+      ))
+
+;;; Error here!
+(define *group-evs*
+ (group-by event->time *sevs*))
+
+
