@@ -1,7 +1,9 @@
 (define-module (util)
   #:use-module (srfi srfi-1)
+  #:use-module (srfi srfi-8) ; receive
   #:use-module (macros arrow)
-  #:export (flatten inner intersperce file-extension sort*))
+  #:export (flatten inner intersperce file-extension sort*
+            fold-multiple))
 
 (define (flatten tree)
   "Flattens a tree, same as printing the tree
@@ -31,3 +33,12 @@ and removing all internal parethese."
   (sort items (lambda (a b)
                 (comperator (get a)
                             (get b)))))
+
+(define (fold-multiple func list . nils)
+  (if (null? list)
+      (apply values (map reverse nils))
+      (call-with-values
+          (lambda () (apply func
+                       (cons (car list)
+                             nils)))
+        (cut fold-multiple func (cdr list) <...>))))
