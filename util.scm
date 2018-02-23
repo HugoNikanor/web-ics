@@ -3,7 +3,7 @@
   #:use-module (srfi srfi-8) ; receive
   #:use-module (macros arrow)
   #:export (flatten inner intersperce file-extension sort*
-            fold-multiple))
+            fold-multiple unique))
 
 (define (flatten tree)
   "Flattens a tree, same as printing the tree
@@ -42,3 +42,16 @@ and removing all internal parethese."
                        (cons (car list)
                              nils)))
         (cut fold-multiple func (cdr list) <...>))))
+
+(define (unique lst)
+  "Returns a list of all unique items in list, compared with memv.
+Note that symbols are returned in oposite order that they are given."
+  (pair-fold (lambda (pair left)
+               (let ((token (car pair))
+                     (right (cdr pair)))
+                 (if (not (or (memv token right)
+                              (memv token left)))
+                     (cons token left)
+                     left)))
+             '()
+             lst))
