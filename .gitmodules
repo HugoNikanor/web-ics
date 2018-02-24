@@ -1,0 +1,3 @@
+[submodule "lib/guile-mime"]
+	path = lib/guile-mime
+	url = https://github.com/HugoNikanor/guile-mime
