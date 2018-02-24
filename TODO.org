@@ -3,3 +3,7 @@
 ** TODO Tidszoner ignoreras för tillfället
 ** TODO Alla tidsobject ska kunna parsas
 ** TODO Många tider läses av fel
+** TODO Skicka filer med ogiltig eller ingen Mime-typ
+   Tex, =.gitignore= går för nuvarande inte att skicka
+via servern.
+   
