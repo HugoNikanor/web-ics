@@ -727,15 +727,28 @@ KEYS
 (define (path-join lst)
   (string-join lst "/" 'infix))
 
-(cond ((null? path)
-       get-document)
+(use-modules (mime))
+
+(define m (get-mime-hash-map))
+(hash-ref m "css")
+
+(hash-ref m (file-extension "index.html")) "text/html"
+
+
+(cond ((null? path) ; This can't be the best way to check for root
+       (values '((content-type text/html))
+               get-document))
       ((equal? "file" (car path))
-       (call-with-input-file
-           (path-join (cons "./front" (cdr path)))
-         read-string))
+       (values `((content-type ,(hash-ref mime (file-extension (cdr path)))))
+               (call-with-input-file
+                   (path-join (cons "./front" (cdr path)))
+                 read-string)))
       (else
-       ;; Do stuff
-       ))
+       (values (build-respones
+                #:code 404
+                #:headers '((content-type text/plain)))
+               "This page unintentionally left blank.")))
+
 
 
 
