@@ -5,33 +5,34 @@
 ;;; Currently I'm working on getting ICS files properly read
 ;;; and the correct data extracted from them.
 
-(add-to-load-path (string-append (getenv "HOME")
-                                 "/lib/guile/"))
+(define-module (main)
+  #:use-module (ics)
+  #:use-module (ics type object)
+  #:use-module (ics type property property)
 
-(add-to-load-path (dirname (current-filename)))
+  #:use-module (srfi srfi-1)             ; List library.
+  #:use-module (srfi srfi-19)            ; Time/Date library.
+  #:use-module (srfi srfi-26)            ; Specializing parameters
 
-(use-modules (ics)
-             (ics type object)
-             (ics type property property)
+  ;; These are from my guile-libs
+  #:use-module (macros arrow)
+  #:use-module (css)
+  #:use-module (output line)
 
-             (srfi srfi-1)              ; List library.
-             (srfi srfi-19)             ; Time/Date library.
-             (srfi srfi-26)             ; Specializing parameters
+  #:use-module (oop goops)
 
-             ;; These are from my guile-libs
-             (macros arrow)
-             (css)
-             (output line)
+  #:use-module (ice-9 ftw)
+  #:use-module (ice-9 curried-definitions)
+  #:use-module (ice-9 format)
+  ;; (ice-9 rdelim)
 
-             (oop goops)
+  #:use-module (util)
 
-             (ice-9 ftw)
-             (ice-9 curried-definitions)
-             (ice-9 format)
-             ;; (ice-9 rdelim)
-
-             (util)
-             )
+  #:export (<ics-path-object> describe-vevent get-files-in-dir slot-set-ret!
+            extract filter-on-property event-time drop-time event->time
+            get-rand-color date->decimal-hour time->decimal-hour vevent->time
+            vev->sxml event-group->sxml get-sxml-doc
+            *group-evs*))
 
 (define-class <ics-path-object> (<ics-object>)
   (path #:getter ics-filepath))

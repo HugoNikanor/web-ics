@@ -712,3 +712,10 @@ KEYS
 
 422065
  168826371/400
+
+(dirname (current-filename)) 
+(current-filename) #f
+
+(dirname "guile-ics-test.scm") "."
+
+
