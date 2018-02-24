@@ -718,4 +718,27 @@ KEYS
 
 (dirname "guile-ics-test.scm") "."
 
+(use-modules (web uri)
+             (ice-9 rdelim))
 
+(split-and-decode-uri-path "/file/style.css")
+ ("file" "style.css")
+
+(define (path-join lst)
+  (string-join lst "/" 'infix))
+
+(cond ((null? path)
+       get-document)
+      ((equal? "file" (car path))
+       (call-with-input-file
+           (path-join (cons "./front" (cdr path)))
+         read-string))
+      (else
+       ;; Do stuff
+       ))
+
+
+
+
+(call-with-input-file ".///////front///////test.txt" read-string)
+ "This is some text\n"

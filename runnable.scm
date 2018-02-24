@@ -8,9 +8,9 @@
 ;;; But I will fix that when I break main.scm up into
 ;;; different modules.
 
+(add-to-load-path "lib/guile-mime")
 (add-to-load-path (string-append (getenv "HOME")
                                  "/lib/guile/"))
-
 (add-to-load-path (dirname (current-filename)))
 
 (use-modules (main)
@@ -26,9 +26,8 @@
              (ice-9 rdelim)
              )
 
-
 ;;; This handler really is horible!
-(define (handler request request- body)
+(define (handler request body)
   ;; split-and-decode-uri-path
   (let ((path (uri-path (request-uri request))))
     (displayln path)
@@ -45,3 +44,5 @@
 
 (define (main args)
   (run-server handler))
+
+
