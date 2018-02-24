@@ -240,7 +240,7 @@ to a number between 0 and 24"
          (meta (@ (charset "utf-8")))
          (link (@ (type "text/css")
                   (rel "stylesheet")
-                  (href "style.css"))))
+                  (href "file/style.css"))))
         (body (div (@ (class "calendar"))
                    ,@ (map (lambda (time)
                              `(div (@ (id ,(string-append "clock-" time))
