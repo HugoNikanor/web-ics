@@ -18,7 +18,10 @@
              (srfi srfi-19)             ; Time/Date library.
              (srfi srfi-26)             ; Specializing parameters
 
+             ;; These are from my guile-libs
              (macros arrow)
+             (css)
+             (output line)
 
              (oop goops)
 
@@ -158,8 +161,93 @@ Currently does't check timezones, and assumes the current one"
       date->time-utc
       ))
 
-;;; Error here!
+;;; Each element is a day, the car is a time-utc object, which
+;;; is exactly midnight of the day in question (timezone unclear).
+;;; The cdr is a list of ics-objects which start on that day
+;;; (endtime might be in another day)
 (define *group-evs*
  (group-by event->time *sevs*))
+
+(define *colors*
+  '((red #xFF 0 0)
+    (green 0 #xFF 0)
+    (blue 0 0 #xFF)
+    (purple #xFF 0 #xFF)
+    (orange #xFF #xFF 0)))
+
+(define (get-rand-color)
+  (cdr (list-ref *colors* (random (length *colors*)))))
+
+
+;;; These should be broken out into an HTML module
+
+(define (date->decimal-hour date)
+  "Coverts an SRFI-19 date objects hour and minute field
+to a number between 0 and 24"
+  (+ (date-hour date)
+     (/ (date-minute date)
+        60)))
+
+(define (time->decimal-hour time)
+  (/ (time-second time)
+     3600))
+
+(define (vevent->time field vev)
+  (-> vev
+      ((extract field))
+      (string->date "~Y~m~dT~H~M~S")
+      date->time-utc))
+
+(define (vev->sxml vev)
+  (let* ((color (get-rand-color))
+         (start-time (vevent->time "DTSTART" vev))
+         (end-time (vevent->time "DTEND" vev))
+         (duration (time-difference end-time start-time))
+         (style
+             (string-append
+              (format #f "top: calc(100%/24 * ~a);"
+                      (remainder (floor (time->decimal-hour start-time))
+                                 24))
+              (format #f "height: calc(100%/24 * ~a);"
+                      (floor (time->decimal-hour duration)))
+              (apply format #f "border-color: rgba(~a,~a,~a,1);" color)
+              (apply format #f "background-color: rgba(~a,~a,~a,0.5);" color))))
+    `(div (@ (class "event")
+             (style ,style))
+          ,((extract "SUMMARY") vev))))
+
+
+
+;;; An event group is a list where the car is a time object,
+;;; and the cdr is a list of VEVENT's
+(define (event-group->sxml evgrp)
+  (let ((date (drop-time (time-utc->date (car evgrp)))))
+    `(div (@ (class "day"))
+          (div (@ (class "meta"))
+               (span (@ (class "dayname"))
+                     ,(date->string date "~a"))
+               (span (@ (class "daydate"))
+                     ,(date->string date "~1")))
+          (div (@ (class "events"))
+               ,@ (map vev->sxml (cdr evgrp))))))
+
+
+;;; Takesr a list of event groupsr
+(define (get-sxml-doc evgrps)
+ `(html (head
+         (title "Calendar")
+         (meta (@ (charset "utf-8")))
+         (link (@ (type "text/css")
+                  (rel "stylesheet")
+                  (href "style.css"))))
+        (body (div (@ (class "calendar"))
+                   ,@ (map (lambda (time)
+                             `(div (@ (id ,(string-append "clock-" time))
+                                      (class "clock"))
+                                   ,(string-append time ":00")))
+                           (map number->string (iota 12 0 2)))
+                      (div (@ (class "days"))
+                           ,@ (map event-group->sxml evgrps))))))
+
 
 

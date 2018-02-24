@@ -1,0 +1,5 @@
+** TODO Saker behöver läggas ut bättre
+** TODO Tider på sidan bör vara relativa skärmen
+** TODO Tidszoner ignoreras för tillfället
+** TODO Alla tidsobject ska kunna parsas
+** TODO Många tider läses av fel

@@ -689,3 +689,26 @@ KEYS
  (#<time type: time-utc nanosecond: 0 second: 1519254000> #<ics-object VEVENT 556f348c1ba0> #<ics-object VEVENT 556f34c7e210>)
  (#<time type: time-utc nanosecond: 0 second: 1518994800> #<ics-object VEVENT 556f34b1da20> #<ics-object VEVENT 556f34e63780>)
  (#<time type: time-utc nanosecond: 0 second: 1518822000> #<ics-object VEVENT 556f349d16c0>) (#<time type: time-utc nanosecond: 0 second: 1518735600> #<ics-object VEVENT 556f3482db70>) (#<time type: time-utc nanosecond: 0 second: 1518649200> #<ics-object VEVENT 556f34e1b990>) (#<time type: time-utc nanosecond: 0 second: 1518562800> #<ics-object VEVENT 556f34988d80> #<ics-object VEVENT 556f34a63d80>) (#<time type: time-utc nanosecond: 0 second: 1518476400> #<ics-object VEVENT 556f34e59cf0>) (#<time type: time-utc nanosecond: 0 second: 1518390000> #<ics-object VEVENT 556f34c31690> #<ics-object VEVENT 556f34e58930>) (#<time type: time-utc nanosecond: 0 second: 1518303600> #<ics-object VEVENT 556f34ceab10>) (#<time type: time-utc nanosecond: 0 second: 1518130800> #<ics-object VEVENT 556f34dec870>) (#<time type: time-utc nanosecond: 0 second: 1518044400> #<ics-object VEVENT 556f349146f0>) (#<time type: time-utc nanosecond: 0 second: 1517958000> #<ics-object VEVENT 556f34dc2a20> #<ics-object VEVENT 556f34db70c0>) (#<time type: time-utc nanosecond: 0 second: 1517526000> #<ics-object VEVENT 556f34d54db0>) (#<time type: time-utc nanosecond: 0 second: 1517353200> #<ics-object VEVENT 556f34dfb9f0>) (#<time type: time-utc nanosecond: 0 second: 1516834800> #<ics-object VEVENT 556f349885a0>) (#<time type: time-utc nanosecond: 0 second: 1516748400> #<ics-object VEVENT 556f348da150>) (#<time type: time-utc nanosecond: 0 second: 1516662000> #<ics-object VEVENT 556f34e58870>) (#<time type: time-utc nanosecond: 0 second: 1516402800> #<ics-object VEVENT 556f34851300>) (#<time type: time-utc nanosecond: 0 second: 1516230000> #<ics-object VEVENT 556f34899900> #<ics-object VEVENT 556f34e63420>) (#<time type: time-utc nanosecond: 0 second: 1516143600> #<ics-object VEVENT 556f34dfbd20>) (#<time type: time-utc nanosecond: 0 second: 1515970800> #<ics-object VEVENT 556f348c1810>) (#<time type: time-utc nanosecond: 0 second: 1515625200> #<ics-object VEVENT 556f34c6dfc0>) (#<time type: time-utc nanosecond: 0 second: 1515452400> #<ics-object VEVENT 556f34b5c3c0>) (#<time type: time-utc nanosecond: 0 second: 1515106800> #<ics-object VEVENT 556f34cfc1e0>))
+
+
+(with-output-to-file "/home/hugo/mnt/lys/cal/index.html"
+  (lambda ()
+    (displayln "<!doctype html>")
+    (sxml->xml (get-sxml-doc *group-evs*))))
+ #<unspecified>
+
+ #<unspecified>
+
+ #<unspecified>
+
+
+
+
+
+
+(remainder (floor (time->decimal-hour (current-time)))
+          24) 1
+
+
+422065
+ 168826371/400

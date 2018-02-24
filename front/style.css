@@ -59,6 +59,7 @@ body {
 
 	height: 100%;
 	width: 100%;
+        min-width: 100px;
 
 	margin-left: 0.5em;
 	border: 1px solid black;
