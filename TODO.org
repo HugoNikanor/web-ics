@@ -1,5 +1,8 @@
 * Blandat
-** DONE Saker behöver läggas ut bättre
+** TODO [#A] Saker behöver läggas ut bättre
+   Looks like It only works for the first set of overlapping
+events per day.
+-----
    <2018-02-28 Wed 00:18> Implementerat nu!
    Kan dock bli problem om saker ligger om lott för mycket,
    testa på någonting annat än ett blockschema.
