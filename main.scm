@@ -22,16 +22,15 @@
   #:use-module (oop goops)
 
   #:use-module (ice-9 ftw)
-  #:use-module (ice-9 curried-definitions)
   ;; #:use-module (ice-9 format)
   ;; (ice-9 rdelim)
 
   #:use-module (util)
   #:use-module (format)
   #:use-module (obj)
+  #:use-module (time)
 
-  #:export (extract filter-on-property event-time drop-time event->time
-            get-rand-color date->decimal-hour time->decimal-hour vevent->time
+  #:export (get-rand-color 
             vev->sxml event-group->sxml get-sxml-doc
             *group-evs*))
 
@@ -56,43 +55,15 @@ the file extension <ext>"
                         node))
                (cddr (file-system-tree path)))))
 
-(define (slot-set-ret! obj slot value)
-  "Sets value of slot, and returns the object
-instead of the new value"
-  (slot-set! obj slot value)
-  obj)
-
-(define ((extract field) item)
-  "Get value of field in item"
-  (ics-property-value
-   (ics-object-property-ref item field)))
-
 ;; (define (map-on-property property-name func items)
 ;;   "This is probably redundant."
 ;;   (map (compose func
 ;;                 (extract property-name))
 ;;        items))
 
-(define (filter-on-property property-name func items)
-  "Filter, but only on lists of VEVENT's, and 
-\(extract property-name) is run on the item before
-func recieves it."
-  (filter (lambda (item)
-            (func ((extract property-name) item)))
-          items))
 
 
-;;; TODO
-;;; This currently only works for events where DTSTART
-;;; contains a time along with it's date, it needs to be
-;;; a lot more general in the future.
-(define (event-time ev)
-  "Returns a time object matching the time of the event.
-Currently does't check timezones, and assumes the current one"
-  (-> ev
-      ((extract "DTSTART"))
-      (string->date "~Y~m~dT~H~M~S")
-      date->time-utc))
+
 
 (define *cal-path*
   (string-append
@@ -126,32 +97,6 @@ Currently does't check timezones, and assumes the current one"
 ;;; Sorted events
 (define *sevs* (sort* *limited-events* time<? event-time)) 
 
-(define (drop-time obj)
-  "Removes everything from hour and down from a date object"
-  (let ((nsecs 0)
-        (seconds 0)
-        (minutes 0)
-        (hours 0)
-        (date (date-day obj))
-        (month (date-month obj))
-        (year (date-year obj))
-        (zone-offset (date-zone-offset obj)))
-    (make-date nsecs seconds minutes hours date month year zone-offset)))
-
-(define (event->time ev)
-  (-> ev
-      ((extract "DTSTART"))
-      (string->date "~Y~m~dT~H~M~SZ")
-      ;; drop-time
-      date->time-utc
-      ))
-
-(define (event-date ev)
-  (-> ev
-      ((extract "DTSTART"))
-      (string->date "~Y~m~dT~H~M~SZ")
-      drop-time
-      ))
 
 ;;; Each element is a day, the car is a time-utc object, which
 ;;; is exactly midnight of the day in question (timezone unclear).
@@ -194,11 +139,7 @@ never on absolute times. For that see date->decimal-hour"
 ;;         (minute (- num (floor num))))
 ;;     (+ hour minute)))
 
-(define (vevent->time field vev)
-  (-> vev
-      ((extract field))
-      (string->date "~Y~m~dT~H~M~S~z")
-      date->time-utc))
+
 
 (define (date->decimal-hour date)
   (exact->inexact

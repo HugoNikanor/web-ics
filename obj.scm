@@ -9,7 +9,15 @@
   #:use-module (srfi srfi-26)
 
   #:use-module (ice-9 format)
-  #:export (<ics-path-object> describe-vevent get-files-in-dir slot-set-ret!))
+  #:use-module (ice-9 curried-definitions)
+
+  #:export (<ics-path-object>
+            describe-vevent
+            get-files-in-dir
+            slot-set-ret!
+            extract
+            filter-on-property
+            ))
 
 
 (define-class <ics-path-object> (<ics-object>)
@@ -36,3 +44,21 @@
   (newline)
   (next-method))
 
+(define (slot-set-ret! obj slot value)
+  "Sets value of slot, and returns the object
+instead of the new value"
+  (slot-set! obj slot value)
+  obj)
+
+(define ((extract field) item)
+  "Get value of field in item"
+  (ics-property-value
+   (ics-object-property-ref item field)))
+
+(define (filter-on-property property-name func items)
+  "Filter, but only on lists of VEVENT's, and 
+\(extract property-name) is run on the item before
+func recieves it."
+  (filter (lambda (item)
+            (func ((extract property-name) item)))
+          items))
