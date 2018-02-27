@@ -750,8 +750,27 @@ KEYS
                "This page unintentionally left blank.")))
 
 
-
-
-
 (call-with-input-file ".///////front///////test.txt" read-string)
  "This is some text\n"
+
+(define-macro (test expr)
+  `(catch #t
+     (lambda () ,expr)
+     list))
+
+(test (string->date "20180101T01:01:01" "~Y~m~dT~H~M~S~z"))
+ (misc-error string->date "TIME-ERROR type ~A: ~S" (bad-date-format-string "~Y~m~dT~H~M~S~z") #f)
+
+(test (string->date "20180101" "~Y~m~dT~H~M~S~z"))
+ (misc-error string->date "TIME-ERROR type ~A: ~S" (bad-date-format-string "~Y~m~dT~H~M~S~z") #f)
+
+(test (string->date "20180101T01:01:01Z" "~Y~m~dT~H~M~S~z"))
+ #<date nanosecond: 0 second: 1 minute: 1 hour: 1 day: 1 month: 1 year: 2018 zone-offset: 0>
+
+(test (string->date "20180101T01:01:01" "~Y~m~dT~H~M~S"))
+ #<date nanosecond: 0 second: 1 minute: 1 hour: 1 day: 1 month: 1 year: 2018 zone-offset: 3600>
+
+;; This probably just stops reading befor the Z 
+(test (string->date "20180101T01:01:01Z" "~Y~m~dT~H~M~S"))
+ #<date nanosecond: 0 second: 1 minute: 1 hour: 1 day: 1 month: 1 year: 2018 zone-offset: 3600>
+

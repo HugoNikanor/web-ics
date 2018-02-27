@@ -75,7 +75,18 @@ tidszonsdefinition också, är dock inte helt särker där
 #+END_EXAMPLE
 *** TODO [#A] Parsing
 För nuvarande kan enbart lokala tidsobjekt parsas, och de
-behandlas då som systemts lokala tid
+behandlas då som systemts lokala tid.
+
+Jag slog om det till att enbart UTC objekt kan hanteras.
+Gjorde inte saken egentligen bättre, men nu kan jag visa ett
+schema exporterat ur TimeEdit!
+
+Tider beräknas dock fel, =20180302T071500Z= ger mig 6.15,
+vilket är rätt tidszonsförskjutning, fast åt /fel håll/.
+Troligen sker det eftersom jag hanterar alla tider som om de
+vore lokala, och sedan skriver över dem till UTC, när jag i
+det här fallet borde göra motsatsen.
+
 ** TODO Många tider läses av fel (kanske)
 * Sample VCALENDAR
   Följnade är vad ~ics --to-org-mode~ spottar ur sig (med

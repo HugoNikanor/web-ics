@@ -35,7 +35,11 @@
             *group-evs*))
 
 (define-class <ics-path-object> (<ics-object>)
-  (path #:getter ics-filepath))
+  (path #:getter ics-filepath)
+  (x-index #:init-value 0
+           #:accessor x-value)
+  (width #:init-value 100
+         #:setter set-width!))
 
 (define (describe-vevent vev)
   (let ((props (ics-object-properties vev)))
@@ -57,7 +61,9 @@
 (define *cal-path*
   (string-append
    (getenv "HOME")
-   "/.calendars/b85ba2e9-18aa-4451-91bb-b52da930e977/"))
+   ;; "/.calendars/b85ba2e9-18aa-4451-91bb-b52da930e977/"
+   "/.calendars/D2.b/"
+   ))
 
 ;; (define (handle-ft-node node)
 ;;   (apply (lambda (name flags . children)
@@ -136,7 +142,7 @@ Currently does't check timezones, and assumes the current one"
 (define *limited-events*
   (filter-on-property "DTSTART"
                       (lambda (time)
-                        (=  15 (string-length time)))
+                        (=  16 (string-length time)))
                       *ics-objs*))
 
 ;;; Sorted events
@@ -157,7 +163,7 @@ Currently does't check timezones, and assumes the current one"
 (define (event->time ev)
   (-> ev
       ((extract "DTSTART"))
-      (string->date "~Y~m~dT~H~M~S")
+      (string->date "~Y~m~dT~H~M~SZ")
       drop-time
       date->time-utc
       ))
@@ -190,13 +196,20 @@ to a number between 0 and 24"
         60)))
 
 (define (time->decimal-hour time)
-  (/ (time-second time)
-     3600))
+  (exact->inexact (/ (time-second time)
+                     3600)))
+
+(define (normalize-time num)
+  "Shifts a number representing a time into a 24 hour period"
+  (let ((hour (remainder (floor num)
+                         24))
+        (minute (- num (floor num))))
+    (+ hour minute)))
 
 (define (vevent->time field vev)
   (-> vev
       ((extract field))
-      (string->date "~Y~m~dT~H~M~S")
+      (string->date "~Y~m~dT~H~M~SZ")
       date->time-utc))
 
 (define (vev->sxml vev)
@@ -207,15 +220,16 @@ to a number between 0 and 24"
          (style
              (string-append
               (format #f "top: calc(100%/24 * ~a);"
-                      (remainder (floor (time->decimal-hour start-time))
-                                 24))
+                      (normalize-time (time->decimal-hour
+                                       start-time)))
               (format #f "height: calc(100%/24 * ~a);"
-                      (floor (time->decimal-hour duration)))
+                      (time->decimal-hour duration))
               (apply format #f "border-color: rgba(~a,~a,~a,1);" color)
               (apply format #f "background-color: rgba(~a,~a,~a,0.5);" color))))
     `(div (@ (class "event")
              (style ,style))
           ,((extract "SUMMARY") vev))))
+
 
 
 
