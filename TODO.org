@@ -1,9 +1,124 @@
-** TODO Saker behöver läggas ut bättre
-** TODO Tider på sidan bör vara relativa skärmen
-** TODO Tidszoner ignoreras för tillfället
-** TODO Alla tidsobject ska kunna parsas
-** TODO Många tider läses av fel
-** TODO Skicka filer med ogiltig eller ingen Mime-typ
+* Blandat
+** TODO [#B] Saker behöver läggas ut bättre
+   
+Id\'e på algoritm för varje dag:
+1. Kolla på första elementet
+2. take-while nästas starttid < sluttid (överlappar)
+3. Ge varje ett ledigt x index
+4. Sätt allas vidd till 100%/<antal>
+5. Gå vidare rekursivt, skicka med lista över tagna x index
+   
+Den här kanske kan leda till problem om eventen ligger i en
+"pyramid". Altså att det blir fler och fler överlapp ju
+längre ner man kommer.
+   
+** TODO [#C] Tider på sidan bör vara relativa skärmen
+   Så att tiderna och deras sträck alltid är synliga, även
+   när man skrollar. En alternativ lösning är att helt
+   enklet visa max ~3 dagar åt gången.
+** TODO [#C] Skicka filer med ogiltig eller ingen Mime-typ
    Tex, =.gitignore= går för nuvarande inte att skicka
 via servern.
-   
+** TODO [#C] Filer med flera VEVENTS
+Varje =.ics= kan inehålla mer än ett VEVENT objekt, alla
+dessa borde sparas och inte bara det första.
+
+Dock är det här nerprioriterat eftersom ~vdirsyncer~ är satt
+till att bara spara ett VEVENT per =.ics= fil.
+
+Kan dock finnas andra objekt av vikt i en VCALENDAR.
+* Tid
+** Datum, tider, och datumstider
+   - date :: YYYYMMDD
+   - time :: HH:MM:SS
+   - datetime :: <date>T<time>
+   På de här tillkommer sedan tidszoner.
+   Oklart hur ett date object specificerar tidszon.
+** Tidszoner
+*** Bakgrund
+=DATE-TIME=-objekt i =VCALENDAR=-format kommer i två
+variaioner, de med och de utan tiszon.
+
+Om ett tidsobjekt har ett ~Z~ längst bak betyder det att
+eventet är i UTC tid, och bör "översättas" till lokal tid.
+
+Avsaknaden av ett ~Z~ betyder "lokal tid". Då kan antingen
+en tidszon ges i samband med =VEVENT=-et, alternativt så ska
+det tolkas som den schemalagdes lokala tid. Oavsätt vart
+denne råkar befinna sig. 
+
+Ett objekt av lokal tid kan ha tidszonsattribut
+#+BEGIN_EXAMPLE
+    DTSTART;TZID=Europe/Stockholm: 20180118T190000
+#+END_EXAMPLE
+
+Jag tror den måste komma tillsamans med en
+tidszonsdefinition också, är dock inte helt särker där
+#+BEGIN_EXAMPLE
+  BEGIN: VTIMEZONE
+    TZID: Europe/Stockholm
+    BEGIN: DAYLIGHT
+      TZNAME: CEST
+      TZOFFSETFROM: +0100
+      RRULE: FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+      TZOFFSETTO: +0200
+      DTSTART: 19700329T020000
+    END: DAYLIGHT
+    BEGIN: STANDARD
+      TZNAME: CET
+      TZOFFSETFROM: +0200
+      RRULE: FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+      TZOFFSETTO: +0100
+      DTSTART: 19701025T030000
+    END: STANDARD
+  END: VTIMEZONE
+#+END_EXAMPLE
+*** TODO [#A] Parsing
+För nuvarande kan enbart lokala tidsobjekt parsas, och de
+behandlas då som systemts lokala tid
+** TODO Många tider läses av fel (kanske)
+* Sample VCALENDAR
+  Följnade är vad ~ics --to-org-mode~ spottar ur sig (med
+  rubriken alla insatta ett (1) från vad den ger).
+  
+** VCALENDAR
+   :PROPERTIES:
+   :PRODID: -//NTBAB//Android//CalendarSync//13.44//231
+   :VERSION: 2.0
+   :END:
+*** VEVENT
+    :PROPERTIES:
+    :SEQUENCE: 1
+    :TRANSP: OPAQUE
+    :DTEND: 20180118T235900
+    :DTEND:TZID: Europe/Stockholm
+    :DTSTAMP: 20180118T124015Z
+    :SUMMARY: Fest
+    :CLASS: PUBLIC
+    :CREATED: 20180118T124015Z
+    :STATUS: TENTATIVE
+    :UID: 51a6ae6b-9cbc-43cb-aa96-41e8148a95e6CalSync
+    :LAST-MODIFIED: 20180118T124015Z
+    :DTSTART: 20180118T190000
+    :DTSTART:TZID: Europe/Stockholm
+    :END:
+*** VTIMEZONE
+    :PROPERTIES:
+    :TZID: Europe/Stockholm
+    :END:
+**** DAYLIGHT
+     :PROPERTIES:
+     :TZNAME: CEST
+     :TZOFFSETFROM: +0100
+     :RRULE: FREQ=YEARLY\;BYMONTH=3\;BYDAY=-1SU
+     :TZOFFSETTO: +0200
+     :DTSTART: 19700329T020000
+     :END:
+**** STANDARD
+     :PROPERTIES:
+     :TZNAME: CET
+     :TZOFFSETFROM: +0200
+     :RRULE: FREQ=YEARLY\;BYMONTH=10\;BYDAY=-1SU
+     :TZOFFSETTO: +0100
+     :DTSTART: 19701025T030000
+     :END:
