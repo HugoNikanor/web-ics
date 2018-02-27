@@ -253,16 +253,10 @@ never on absolute times. For that see date->decimal-hour"
 
 
 
-(define *val* #f)
-
 ;;; An event group is a list where the car is a time object,
 ;;; and the cdr is a list of VEVENT's
 (define (event-group->sxml evgrp)
-  (set! *val* (car evgrp))
-  ;; (car evgrp) already is a date object with dropped time...?
-  (let
-      ((date (car evgrp)))
-      ;; ((date (drop-time (time-utc->date (car evgrp)))))
+  (let ((date (car evgrp)))
     `(div (@ (class "day"))
           (div (@ (class "meta"))
                (span (@ (class "dayname"))
