@@ -89,6 +89,8 @@ body {
 .event:hover {
     width: 100% !important;
     left: 0 !important;
+    margin-top: 3mm;
+    margin-left: 3mm;
     z-index: 1 !important;
     /* TODO keep actual color, just remove transparency */
     background-color: blue !important;
