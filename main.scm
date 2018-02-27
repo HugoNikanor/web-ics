@@ -34,16 +34,6 @@
             vev->sxml event-group->sxml get-sxml-doc
             *group-evs*))
 
-
-;; (define (handle-ft-node node)
-;;   (apply (lambda (name flags . children)
-;;            (case (stat:type flags)
-;;              ((directory) (map (compose (cut string-append name <>)
-;;                                         handle-ft-node)
-;;                                children))
-;;              ((regular) name)))
-;;          node))
-
 (define (get-files-in-dir path ext)
   "Returns a list of all direct children of <path> which have
 the file extension <ext>"
@@ -54,15 +44,6 @@ the file extension <ext>"
                           (string=? ext (file-extension name)))
                         node))
                (cddr (file-system-tree path)))))
-
-;; (define (map-on-property property-name func items)
-;;   "This is probably redundant."
-;;   (map (compose func
-;;                 (extract property-name))
-;;        items))
-
-
-
 
 
 (define *cal-path*
@@ -131,14 +112,6 @@ to a number between 0 and 24"
 never on absolute times. For that see date->decimal-hour"
   (exact->inexact (/ (time-second time)
                      3600)))
-
-;; (define (normalize-time num)
-;;   "Shifts a number representing a time into a 24 hour period"
-;;   (let ((hour (remainder (floor num)
-;;                          24))
-;;         (minute (- num (floor num))))
-;;     (+ hour minute)))
-
 
 
 (define (date->decimal-hour date)
