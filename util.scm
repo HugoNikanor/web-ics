@@ -60,6 +60,9 @@ Note that symbols are returned in oposite order that they are given."
              '()
              lst))
 
+;;; Makes a list where each element is a list, where car
+;;; is (func (car list)) and cdr is all elements from list
+;;; where func gave the same value.
 (define (group-by func list)
   "Equivalent to elisp's seq-group-by,
 also see guile's built in <partition> if only true/false

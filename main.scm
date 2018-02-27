@@ -164,16 +164,24 @@ Currently does't check timezones, and assumes the current one"
   (-> ev
       ((extract "DTSTART"))
       (string->date "~Y~m~dT~H~M~SZ")
-      drop-time
+      ;; drop-time
       date->time-utc
+      ))
+
+(define (event-date ev)
+  (-> ev
+      ((extract "DTSTART"))
+      (string->date "~Y~m~dT~H~M~SZ")
+      drop-time
       ))
 
 ;;; Each element is a day, the car is a time-utc object, which
 ;;; is exactly midnight of the day in question (timezone unclear).
 ;;; The cdr is a list of ics-objects which start on that day
 ;;; (endtime might be in another day)
+
 (define *group-evs*
- (group-by event->time *sevs*))
+ (group-by event-date *sevs*))
 
 (define *colors*
   '((red #xFF 0 0)
@@ -196,34 +204,47 @@ to a number between 0 and 24"
         60)))
 
 (define (time->decimal-hour time)
+  "This should only be used on time intervals,
+never on absolute times. For that see date->decimal-hour"
   (exact->inexact (/ (time-second time)
                      3600)))
 
-(define (normalize-time num)
-  "Shifts a number representing a time into a 24 hour period"
-  (let ((hour (remainder (floor num)
-                         24))
-        (minute (- num (floor num))))
-    (+ hour minute)))
+;; (define (normalize-time num)
+;;   "Shifts a number representing a time into a 24 hour period"
+;;   (let ((hour (remainder (floor num)
+;;                          24))
+;;         (minute (- num (floor num))))
+;;     (+ hour minute)))
 
 (define (vevent->time field vev)
   (-> vev
       ((extract field))
-      (string->date "~Y~m~dT~H~M~SZ")
+      (string->date "~Y~m~dT~H~M~S~z")
       date->time-utc))
+
+(define (date->decimal-hour date)
+  (exact->inexact
+   (+ (date-hour date)
+      (/ (date-minute date)
+         60))))
 
 (define (vev->sxml vev)
   (let* ((color (get-rand-color))
          (start-time (vevent->time "DTSTART" vev))
+         (start-date (time-utc->date start-time))
+
          (end-time (vevent->time "DTEND" vev))
+         (end-date (time-utc->date end-time))
+
          (duration (time-difference end-time start-time))
          (style
              (string-append
               (format #f "top: calc(100%/24 * ~a);"
-                      (normalize-time (time->decimal-hour
-                                       start-time)))
+                      (date->decimal-hour start-date))
               (format #f "height: calc(100%/24 * ~a);"
-                      (time->decimal-hour duration))
+                      (time->decimal-hour duration)
+                      ;; (date->decimal-hour duration)
+                      )
               (apply format #f "border-color: rgba(~a,~a,~a,1);" color)
               (apply format #f "background-color: rgba(~a,~a,~a,0.5);" color))))
     `(div (@ (class "event")
@@ -232,11 +253,16 @@ to a number between 0 and 24"
 
 
 
+(define *val* #f)
 
 ;;; An event group is a list where the car is a time object,
 ;;; and the cdr is a list of VEVENT's
 (define (event-group->sxml evgrp)
-  (let ((date (drop-time (time-utc->date (car evgrp)))))
+  (set! *val* (car evgrp))
+  ;; (car evgrp) already is a date object with dropped time...?
+  (let
+      ((date (car evgrp)))
+      ;; ((date (drop-time (time-utc->date (car evgrp)))))
     `(div (@ (class "day"))
           (div (@ (class "meta"))
                (span (@ (class "dayname"))

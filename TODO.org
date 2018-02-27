@@ -26,7 +26,8 @@ dessa borde sparas och inte bara det första.
 Dock är det här nerprioriterat eftersom ~vdirsyncer~ är satt
 till att bara spara ett VEVENT per =.ics= fil.
 
-Kan dock finnas andra objekt av vikt i en VCALENDAR.
+Kan dock finnas andra objekt av vikt i en VCALENDAR
+** Vad står =DTSTAMP= för?
 * Tid
 ** Datum, tider, och datumstider
    - date :: YYYYMMDD
@@ -81,11 +82,15 @@ Jag slog om det till att enbart UTC objekt kan hanteras.
 Gjorde inte saken egentligen bättre, men nu kan jag visa ett
 schema exporterat ur TimeEdit!
 
-Tider beräknas dock fel, =20180302T071500Z= ger mig 6.15,
-vilket är rätt tidszonsförskjutning, fast åt /fel håll/.
-Troligen sker det eftersom jag hanterar alla tider som om de
-vore lokala, och sedan skriver över dem till UTC, när jag i
-det här fallet borde göra motsatsen.
+*** DONE Beräkning
+    Jag tror den gör rätt nu, åtminstonde för UTC element.
+    De läses in i UTC tid, men presenteras i lokal tid.
+    -----
+    Tider beräknas dock fel, =20180302T071500Z= ger mig 6.15,
+    vilket är rätt tidszonsförskjutning, fast åt /fel håll/.
+    Troligen sker det eftersom jag hanterar alla tider som om de
+    vore lokala, och sedan skriver över dem till UTC, när jag i
+    det här fallet borde göra motsatsen.
 
 ** TODO Många tider läses av fel (kanske)
 * Sample VCALENDAR
