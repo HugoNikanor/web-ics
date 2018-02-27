@@ -16,55 +16,25 @@
 
   ;; These are from my guile-libs
   #:use-module (macros arrow)
-  #:use-module (css)
+  ;; #:use-module (css)
   #:use-module (output line)
 
   #:use-module (oop goops)
 
   #:use-module (ice-9 ftw)
   #:use-module (ice-9 curried-definitions)
-  #:use-module (ice-9 format)
+  ;; #:use-module (ice-9 format)
   ;; (ice-9 rdelim)
 
   #:use-module (util)
   #:use-module (format)
+  #:use-module (obj)
 
-  #:export (<ics-path-object> describe-vevent get-files-in-dir slot-set-ret!
-            extract filter-on-property event-time drop-time event->time
+  #:export (extract filter-on-property event-time drop-time event->time
             get-rand-color date->decimal-hour time->decimal-hour vevent->time
             vev->sxml event-group->sxml get-sxml-doc
             *group-evs*))
 
-(define-class <ics-path-object> (<ics-object>)
-  (path #:getter ics-filepath)
-  (x-index #:init-value 0
-           #:accessor x-value)
-  (width #:init-value 100
-         #:setter set-width!))
-
-(define (describe-vevent vev)
-  (let ((props (ics-object-properties vev)))
-    (string-join 
-     (map (cut format #f "~10,@a: ~a" <> <>)
-          (map ics-property-name props)
-          (map ics-property-value props))
-     "\n"
-     'suffix)))
-
-(define-method (describe (vev <ics-object>))
-  (display (describe-vevent vev)))
-
-(define-method (describe (vev <ics-path-object>))
-  (display (ics-filepath vev))
-  (newline)
-  (next-method))
-
-(define *cal-path*
-  (string-append
-   (getenv "HOME")
-   ;; "/.calendars/b85ba2e9-18aa-4451-91bb-b52da930e977/"
-   "/.calendars/D2.b/"
-   ))
 
 ;; (define (handle-ft-node node)
 ;;   (apply (lambda (name flags . children)
@@ -123,6 +93,13 @@ Currently does't check timezones, and assumes the current one"
       ((extract "DTSTART"))
       (string->date "~Y~m~dT~H~M~S")
       date->time-utc))
+
+(define *cal-path*
+  (string-append
+   (getenv "HOME")
+   ;; "/.calendars/b85ba2e9-18aa-4451-91bb-b52da930e977/"
+   "/.calendars/D2.b/"
+   ))
 
 ;;; list of all ics-objects in filename
 ;;; parsed as if each file only had one VEVENT
