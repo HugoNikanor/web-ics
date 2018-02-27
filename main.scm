@@ -27,6 +27,7 @@
   ;; (ice-9 rdelim)
 
   #:use-module (util)
+  #:use-module (format)
 
   #:export (<ics-path-object> describe-vevent get-files-in-dir slot-set-ret!
             extract filter-on-property event-time drop-time event->time
@@ -249,7 +250,9 @@ never on absolute times. For that see date->decimal-hour"
               (apply format #f "background-color: rgba(~a,~a,~a,0.5);" color))))
     `(div (@ (class "event")
              (style ,style))
-          ,((extract "SUMMARY") vev))))
+          ,(strip-summary-liu ((extract "SUMMARY") vev))
+          ;; ,((extract "SUMMARY") vev)
+          )))
 
 
 
