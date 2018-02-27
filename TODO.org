@@ -1,6 +1,9 @@
 * Blandat
-** TODO [#B] Saker behöver läggas ut bättre
-   
+** DONE Saker behöver läggas ut bättre
+   <2018-02-28 Wed 00:18> Implementerat nu!
+   Kan dock bli problem om saker ligger om lott för mycket,
+   testa på någonting annat än ett blockschema.
+-----   
 Id\'e på algoritm för varje dag:
 1. Kolla på första elementet
 2. take-while nästas starttid < sluttid (överlappar)

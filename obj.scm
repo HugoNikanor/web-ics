@@ -55,12 +55,22 @@
                (time-difference (date->time-utc etime)
                                 (date->time-utc stime)))))
 
+
+
 (define (describe-vevent vev)
   (let ((props (ics-object-properties vev)))
     (string-join 
-     (map (cut format #f "~10,@a: ~a" <> <>)
-          (map ics-property-name props)
-          (map ics-property-value props))
+     (append '("Direct Slots:" "===============")
+             (map (lambda (slot-name)
+                    (format #f "~10,@a: ~a"
+                            slot-name
+                            (slot-ref vev slat-name)))
+                  (map slot-definition-name
+                       (class-direct-slots <ics-path-object>)))
+             '("Internal VEVENT:" "================")
+             (map (cut format #f "~10,@a: ~a" <> <>)
+                  (map ics-property-name props)
+                  (map ics-property-value props)))
      "\n"
      'suffix)))
 

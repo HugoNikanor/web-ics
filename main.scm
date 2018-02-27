@@ -99,12 +99,14 @@ the file extension <ext>"
                   (lambda (next)
                     (displayln next)
                     (time<=? (date->time-utc (start next))
-                             (date->time-utc (end (car day-evs)))))
+                             (date->time-utc (end (cadr day-evs)))))
                   ev-list)))
            (for-each set-x! overlapping (iota 10))
            (for-each (cut set-width! <> (/ (length overlapping)))
                      overlapping))))
    evs))
+
+(fix-event-widths *group-evs*)
 
 ;; (if (null? evs)
 ;;     '()
@@ -167,12 +169,15 @@ never on absolute times. For that see date->decimal-hour"
                       ;; (date->decimal-hour duration)
                       )
               (format #f "width: calc(100% * (~a));" (get-width vev))
+              (format #f "left: calc(100% * (~a) * (~a));"
+                      (get-width vev)
+                      (get-x vev))
               (apply format #f "border-color: rgba(~a,~a,~a,1);" color)
               (apply format #f "background-color: rgba(~a,~a,~a,0.5);" color))))
     `(div (@ (class "event")
              (style ,style))
           ,(strip-summary-liu ((extract "SUMMARY") vev))
-          ;; ,((extract "SUMMARY") vev)
+            ;; ,((extract "SUMMARY") vev)
           )))
 
 
