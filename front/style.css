@@ -86,6 +86,14 @@ body {
 	border-width: 2px;
 }
 
+.event:hover {
+    width: 100% !important;
+    left: 0 !important;
+    z-index: 1 !important;
+    /* TODO keep actual color, just remove transparency */
+    background-color: blue !important;
+}
+
 #clock-0  { top: calc(100%/24 *  0); }
 #clock-2  { top: calc(100%/24 *  2); }
 #clock-4  { top: calc(100%/24 *  4); }
