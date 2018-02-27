@@ -4,7 +4,8 @@
   #:use-module (srfi srfi-26)
   #:use-module (macros arrow)
   #:export (flatten inner intersperce file-extension sort*
-            fold-multiple unique group-by path-join))
+            fold-multiple unique group-by path-join
+            pair-map))
 
 (define (flatten tree)
   "Flattens a tree, same as printing the tree
@@ -85,3 +86,13 @@ the return order of the keys is undefined."
                                 (equal? key (car item)))
                               alist))))
          (unique keys))))
+
+
+(define (pair-map func list)
+  "Like regular map, but func is given the whole cons cell
+and not just the car."
+  (if (null? list)
+      '()
+      (cons (func list)
+            (pair-map func (cdr list)))))
+

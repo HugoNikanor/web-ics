@@ -87,6 +87,35 @@ the file extension <ext>"
 (define *group-evs*
  (group-by event-date *sevs*))
 
+(define (fix-event-widths evs)
+  (for-each
+   (lambda (day-evs)
+     (if (= 1 (length day-evs))
+         #f
+         (let* ((date (car day-evs))
+                (ev-list (cdr day-evs))
+                (overlapping
+                 (take-while
+                  (lambda (next)
+                    (displayln next)
+                    (time<=? (date->time-utc (start next))
+                             (date->time-utc (end (car day-evs)))))
+                  ev-list)))
+           (for-each set-x! overlapping (iota 10))
+           (for-each (cut set-width! <> (/ (length overlapping)))
+                     overlapping))))
+   evs))
+
+;; (if (null? evs)
+;;     '()
+;;     (let ()
+;;       (for-each (cut set-width! <> (/ (length overlapping)))
+;;                 overlapping)
+;;       evs
+;;       ))
+
+;; (fix-event-widths *group-evs*)
+
 (define *colors*
   '((red #xFF 0 0)
     (green 0 #xFF 0)
@@ -137,6 +166,7 @@ never on absolute times. For that see date->decimal-hour"
                       (time->decimal-hour duration)
                       ;; (date->decimal-hour duration)
                       )
+              (format #f "width: calc(100% * (~a));" (get-width vev))
               (apply format #f "border-color: rgba(~a,~a,~a,1);" color)
               (apply format #f "background-color: rgba(~a,~a,~a,0.5);" color))))
     `(div (@ (class "event")

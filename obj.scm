@@ -6,12 +6,19 @@
   #:use-module (ics type property property)
 
   #:use-module (srfi srfi-1)
+  #:use-module (srfi srfi-19)
   #:use-module (srfi srfi-26)
 
   #:use-module (ice-9 format)
   #:use-module (ice-9 curried-definitions)
 
   #:export (<ics-path-object>
+
+            ics-filepath
+            get-x set-x!
+            get-width set-width!
+            start end elength
+
             describe-vevent
             get-files-in-dir
             slot-set-ret!
@@ -23,9 +30,30 @@
 (define-class <ics-path-object> (<ics-object>)
   (path #:getter ics-filepath)
   (x-index #:init-value 0
-           #:accessor x-value)
-  (width #:init-value 100
-         #:setter set-width!))
+           #:getter get-x
+           #:setter set-x!)
+  (width #:init-value 1
+         #:setter set-width!
+         #:getter get-width)
+  (start-date #:getter start)
+  (end-date #:getter end)
+  (event-length #:getter elength)
+  )
+
+(define-method (update-instance-for-different-class
+                (old <ics-object>)
+                (new <ics-path-object>))
+  (let ((stime (slot-set! new 'start-date
+                          (string->date
+                           ((extract "DTSTART") new)
+                           "~Y~m~dT~H~M~S~z")))
+        (etime (slot-set! new 'end-date
+                          (string->date
+                           ((extract "DTEND") new)
+                           "~Y~m~dT~H~M~S~z"))))
+    (slot-set! new 'event-length
+               (time-difference (date->time-utc etime)
+                                (date->time-utc stime)))))
 
 (define (describe-vevent vev)
   (let ((props (ics-object-properties vev)))
