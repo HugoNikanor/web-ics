@@ -64,7 +64,7 @@
              (map (lambda (slot-name)
                     (format #f "~10,@a: ~a"
                             slot-name
-                            (slot-ref vev slat-name)))
+                            (slot-ref vev slot-name)))
                   (map slot-definition-name
                        (class-direct-slots <ics-path-object>)))
              '("Internal VEVENT:" "================")
