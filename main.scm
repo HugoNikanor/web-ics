@@ -32,7 +32,7 @@
 
   #:export (get-rand-color 
             vev->sxml event-group->sxml get-sxml-doc
-            *group-evs*))
+            *sorted-groups*))
 
 (define (get-files-in-dir path ext)
   "Returns a list of all direct children of <path> which have
@@ -75,8 +75,15 @@ the file extension <ext>"
                         (=  16 (string-length time)))
                       *ics-objs*))
 
+(define (event-filter event)
+  (string-contains ((extract "SUMMARY") event)
+                   "THEN18"))
+
+(define *filtered-events*
+  (filter event-filter *limited-events*))
+
 ;;; Sorted events
-(define *sevs* (sort* *limited-events* time<? event-time)) 
+(define *sevs* (sort* *filtered-events* time<? event-time)) 
 
 
 ;;; Each element is a day, the car is a time-utc object, which
@@ -86,6 +93,9 @@ the file extension <ext>"
 
 (define *group-evs*
  (group-by event-date *sevs*))
+
+(define *sorted-groups*
+  (sort* *group-evs* time<? (compose date->time-utc car)))
 
 (define (fix-event-widths evs)
   (for-each

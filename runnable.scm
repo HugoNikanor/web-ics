@@ -34,7 +34,7 @@
   (with-output-to-string
     (lambda ()
       (displayln "<!doctype html>")
-      (sxml->xml (get-sxml-doc *group-evs*)))))
+      (sxml->xml (get-sxml-doc *sorted-groups*)))))
 
 (define mime (get-mime-hash-table))
 
