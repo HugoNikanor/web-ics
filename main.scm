@@ -79,8 +79,15 @@ the file extension <ext>"
   (string-contains ((extract "SUMMARY") event)
                    "THEN18"))
 
+(define summary-filter 
+  (cut string-contains <> "THEN18"))
+
+;;; One filter for each property type of importance possibly
+;;; is better, I'm at least keeping this for now.
 (define *filtered-events*
-  (filter event-filter *limited-events*))
+  (filter-on-property "SUMMARY"
+                      summary-filter
+                      *limited-events*))
 
 ;;; Sorted events
 (define *sevs* (sort* *filtered-events* time<? event-time)) 
