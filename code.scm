@@ -209,6 +209,15 @@ never on absolute times. For that see date->decimal-hour"
   (assoc-ref *calendar-colors*
              (containing-calendar event)))
 
+;;; Rewrite rules for the summaries
+;;; TODO should be placed into some form of config file
+(define (summary-proc vev)
+  (let ((summary ((extract "SUMMARY") vev)))
+    (cond ((member (containing-calendar vev)
+                   '("D1.b" "D2.b"))
+           (strip-summary-liu summary))
+          (else summary))))
+
 (define (vev->sxml vev)
   (let* ((color (color-by-calendar vev))
          (start-time (vevent->time "DTSTART" vev))
@@ -234,11 +243,7 @@ never on absolute times. For that see date->decimal-hour"
               (apply format #f "background-color: rgba(~a,~a,~a,0.5);" color))))
     `(div (@ (class "event")
              (style ,style))
-          #; ,(strip-summary-liu ((extract "SUMMARY") vev))
-          ,((extract "SUMMARY") vev)
-            ;; ,((extract "SUMMARY") vev)
-          )))
-
+          ,(summary-proc vev))))
 
 
 ;;; An event group is a list where the car is a time object,
