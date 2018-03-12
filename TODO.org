@@ -22,9 +22,12 @@ längre ner man kommer.
    Så att tiderna och deras sträck alltid är synliga, även
    när man skrollar. En alternativ lösning är att helt
    enklet visa max ~3 dagar åt gången.
-** TODO [#C] Skicka filer med ogiltig eller ingen Mime-typ
+** DONE [#C] Skicka filer med ogiltig eller ingen Mime-typ
    Tex, =.gitignore= går för nuvarande inte att skicka
 via servern.
+
+[2018-03-12 Mon 13:37] Saker med okänd mime-typ skickas nu
+med ~*default-mime*~, vilket är satt till =text/plain=.
 ** TODO [#C] Filer med flera VEVENTS
 Varje =.ics= kan inehålla mer än ett VEVENT objekt, alla
 dessa borde sparas och inte bara det första.
@@ -99,6 +102,10 @@ schema exporterat ur TimeEdit!
     det här fallet borde göra motsatsen.
 
 ** TODO Många tider läses av fel (kanske)
+** TODO Directory listings
+   Do something except crash when a directory under the
+   =file/= directory is accessed. Either show a listing
+   or gracefully return an error page.
 * Sample VCALENDAR
   Följnade är vad ~ics --to-org-mode~ spottar ur sig (med
   rubriken alla insatta ett (1) från vad den ger).

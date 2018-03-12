@@ -18,6 +18,7 @@
              (sxml simple)
 
              (output line)
+             (css)
 
              (web server)
              (web request)
@@ -61,6 +62,8 @@ body {
 
                "This page unintentionally left blank."))))))
 
+(define *default-mime* "text/plain")
+
 (define (handler request body)
   (let ((path (split-and-decode-uri-path (uri-path (request-uri request)))))
     (cond ((null? path)    ; This can't be the best way to check for root
@@ -70,7 +73,8 @@ body {
            (let ((local-path (path-join (cons "./front" (cdr path)))))
              (if (access? local-path R_OK)
                  (let* ((extension (file-extension local-path))
-                        (mime-type (hash-ref mime extension)))
+                        (mime-type (or (hash-ref mime extension)
+                                       *default-mime*)))
                    (values `((content-type ,(string->symbol mime-type)))
                            (call-with-input-file local-path read-string)))
                  (404-page))))
