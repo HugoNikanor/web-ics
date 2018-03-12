@@ -59,7 +59,7 @@ body {
 
 	height: 100%;
 	width: 100%;
-        min-width: 100px;
+        min-width: 300px;
 
 	margin-left: 0.5em;
 	border: 1px solid black;
@@ -84,16 +84,59 @@ body {
 
 	border-style: solid;
 	border-width: 2px;
+
+        z-index: 0;
 }
 
-.event:hover {
+.selected {
     width: 100% !important;
     left: 0 !important;
+    z-index: 1 !important;
+
     margin-top: 3mm;
     margin-left: 3mm;
-    z-index: 1 !important;
-    /* TODO keep actual color, just remove transparency */
-    background-color: blue !important;
+}
+
+/*
+ * There probably is a nicer way to have these color selectors.
+ * Probably a small script which generates the file.
+ *
+ * The reason for this being here instead of inside the HTML,
+ * as it was before, is due to me wanting to toggle it from
+ * the javascript.
+ */
+
+.red {
+    background-color: rgba(255, 0, 0, 0.5);
+    border-color:     rgba(255, 0, 0, 1);
+}
+.red.selected {
+    background-color: rgba(255, 0, 0, 0.9);
+    border-color:     rgba(255, 0, 0, 1);
+}
+.green {
+    background-color: rgba(0, 255, 0, 0.5);
+    border-color:     rgba(0, 255, 0, 1);
+}
+.green.selected {
+    background-color: rgba(0, 255, 0, 0.9);
+    border-color:     rgba(0, 255, 0, 1);
+}
+.blue {
+    background-color: rgba(0, 0, 255, 0.5);
+    border-color:     rgba(0, 0, 255, 1);
+}    
+.blue.selected {
+    background-color: rgba(0, 0, 255, 0.9);
+    border-color:     rgba(0, 0, 255, 1);
+}
+.purple {
+    background-color: rgba(255, 0, 255, 0.5);
+    border-color:     rgba(255, 0, 255, 1);
+}
+.purple.selected {
+    background-color: rgba(255, 0, 255, 0.9);
+    border-color:     rgba(255, 0, 255, 1);
 }
 
 #clock-0  { top: calc(100%/24 *  0); }

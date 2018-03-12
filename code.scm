@@ -164,7 +164,7 @@ the file extension <ext>"
 
 (define *calendar-colors*
   (map cons *calendars*
-       (map cdr *colors*)))
+       (map car *colors*)))
 
 (define (color-by-calendar event)
   (assoc-ref *calendar-colors*
@@ -200,9 +200,9 @@ the file extension <ext>"
               (format #f "left: calc(100% * (~a) * (~a));"
                       (get-width vev)
                       (get-x vev))
-              (apply format #f "border-color: rgba(~a,~a,~a,1);" color)
-              (apply format #f "background-color: rgba(~a,~a,~a,0.5);" color))))
-    `(div (@ (class "event")
+              
+             )))
+    `(div (@ (class ,(string-join `("event" ,(symbol->string color)) " " 'infix))
              (style ,style))
           ,(summary-proc vev))))
 
@@ -228,7 +228,9 @@ the file extension <ext>"
          (meta (@ (charset "utf-8")))
          (link (@ (type "text/css")
                   (rel "stylesheet")
-                  (href "file/style.css"))))
+                  (href "file/style.css")))
+         (script (@ (src "file/jquery-3.3.1.min.js")) "")
+         (script (@ (src "file/script.js")) ""))
         (body (div (@ (class "calendar"))
                    ,@ (map (lambda (time)
                              `(div (@ (id ,(string-append "clock-" time))
