@@ -79,8 +79,11 @@ the file extension <ext>"
   (string-contains ((extract "SUMMARY") event)
                    "THEN18"))
 
-(define summary-filter 
-  (cut string-contains <> "THEN18"))
+(define (summary-filter arg)
+  #t)
+
+;; (define summary-filter 
+;;   (cut string-contains <> "THEN18"))
 
 ;;; One filter for each property type of importance possibly
 ;;; is better, I'm at least keeping this for now.
