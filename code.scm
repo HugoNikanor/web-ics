@@ -201,8 +201,16 @@ never on absolute times. For that see date->decimal-hour"
       (/ (date-minute date)
          60))))
 
+(define *calendar-colors*
+  (map cons *calendars*
+       (map cdr *colors*)))
+
+(define (color-by-calendar event)
+  (assoc-ref *calendar-colors*
+             (containing-calendar event)))
+
 (define (vev->sxml vev)
-  (let* ((color (get-rand-color))
+  (let* ((color (color-by-calendar vev))
          (start-time (vevent->time "DTSTART" vev))
          (start-date (time-utc->date start-time))
 

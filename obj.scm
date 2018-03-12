@@ -20,6 +20,7 @@
             get-x set-x!
             get-width set-width!
             start end elength
+            containing-calendar
 
             describe-vevent
             get-files-in-dir
