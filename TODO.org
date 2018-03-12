@@ -22,7 +22,9 @@ Id\'e på algoritm för varje dag:
 Den här kanske kan leda till problem om eventen ligger i en
 "pyramid". Altså att det blir fler och fler överlapp ju
 längre ner man kommer.
-   
+** TODO [#B] I vissa fall finns en dag med flera gånger
+Troligen beror det på att jag inte klipper bort timmar
+och mindre från datumtider i vissa fall.
 ** TODO [#C] Tider på sidan bör vara relativa skärmen
    Så att tiderna och deras sträck alltid är synliga, även
    när man skrollar. En alternativ lösning är att helt
@@ -42,6 +44,15 @@ till att bara spara ett VEVENT per =.ics= fil.
 
 Kan dock finnas andra objekt av vikt i en VCALENDAR
 ** Vad står =DTSTAMP= för?
+** TODO [#C] Directory listings
+   Do something except crash when a directory under the
+   =file/= directory is accessed. Either show a listing
+   or gracefully return an error page.
+** TODO [#A] Filrättigheter
+   Vad kan man komma åt genom =file/= mappen. Jag provade gå
+   in på =/file/../main.scm=, men det ändrades till =/main.scm=,
+   vilket 404-ade. Tror det är säkert, men bör ta en ordentlig
+   titt på det.
 * Tid
 ** Datum, tider, och datumstider
    - date :: YYYYMMDD
@@ -108,10 +119,6 @@ schema exporterat ur TimeEdit!
     vore lokala, och sedan skriver över dem till UTC, när jag i
     det här fallet borde göra motsatsen.
 
-** TODO Directory listings
-   Do something except crash when a directory under the
-   =file/= directory is accessed. Either show a listing
-   or gracefully return an error page.
 * Sample VCALENDAR
   Följnade är vad ~ics --to-org-mode~ spottar ur sig (med
   rubriken alla insatta ett (1) från vad den ger).
