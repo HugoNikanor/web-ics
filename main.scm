@@ -2,10 +2,9 @@
 -e main -s
 !#
 
-(let ((here (dirname (current-filename)))
-      (home (getenv "HOME")))
+(let ((here (dirname (current-filename))))
   (add-to-load-path (string-append here "/lib/guile-mime/"))
-  (add-to-load-path (string-append home "/lib/guile/"))
+  (add-to-load-path (string-append here "/lib/guile-lib/"))
   (add-to-load-path here))
 
 (use-modules (web server)
