@@ -83,13 +83,15 @@ tidszonsdefinition också, är dock inte helt särker där
     END: STANDARD
   END: VTIMEZONE
 #+END_EXAMPLE
-*** TODO [#A] Parsing
+*** DONE [#A] Parsing
 För nuvarande kan enbart lokala tidsobjekt parsas, och de
 behandlas då som systemts lokala tid.
 
 Jag slog om det till att enbart UTC objekt kan hanteras.
 Gjorde inte saken egentligen bättre, men nu kan jag visa ett
 schema exporterat ur TimeEdit!
+
+[2018-03-12 Mon 17:24] done
 
 *** DONE Beräkning
     Jag tror den gör rätt nu, åtminstonde för UTC element.
@@ -101,7 +103,6 @@ schema exporterat ur TimeEdit!
     vore lokala, och sedan skriver över dem till UTC, när jag i
     det här fallet borde göra motsatsen.
 
-** TODO Många tider läses av fel (kanske)
 ** TODO Directory listings
    Do something except crash when a directory under the
    =file/= directory is accessed. Either show a listing

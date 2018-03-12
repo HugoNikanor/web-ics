@@ -34,6 +34,11 @@
             vev->sxml event-group->sxml get-sxml-doc
             *sorted-groups*))
 
+(define (get-cal-name calendar-path)
+  (if (not (null? (scandir calendar-path (cut string=? "displayname" <>))))
+      (call-with-input-file (path-join* calendar-path "displayname") read-line)
+      (basename calendar-path)))
+
 (define (get-files-in-dir path ext)
   "Returns a list of all direct children of <path> which have
 the file extension <ext>"
@@ -72,16 +77,11 @@ the file extension <ext>"
 (define (string-car str)
   (car (string->list str)))
 
-(define (get-cal-name calendar-path)
-  (if (not (null? (scandir calendar-path (cut string=? "displayname" <>))))
-      (call-with-input-file (path-join* calendar-path "displayname") read-line)
-      (basename calendar-path)))
-
 ;;; list of all ics-objects in filename
 ;;; parsed as if each file only had one VEVENT
 ;;; origininal path of file stored in object as well
 (define *ics-objs*
-  (map (lambda (calendar-path)
+  (append-map (lambda (calendar-path)
          (let* ((files (get-files-in-dir calendar-path "ics"))
                 (name (get-cal-name calendar-path)))
            (map (lambda (filename)
@@ -98,10 +98,12 @@ the file extension <ext>"
        *cal-paths*))
 
 (define *limited-events*
+  #;
   (filter-on-property "DTSTART"
                       (lambda (time)
                         (=  16 (string-length time)))
-                      *ics-objs*))
+  *ics-objs*)
+  *ics-objs*)
 
 (define (event-filter event)
   (string-contains ((extract "SUMMARY") event)
@@ -224,7 +226,8 @@ never on absolute times. For that see date->decimal-hour"
               (apply format #f "background-color: rgba(~a,~a,~a,0.5);" color))))
     `(div (@ (class "event")
              (style ,style))
-          ,(strip-summary-liu ((extract "SUMMARY") vev))
+          #; ,(strip-summary-liu ((extract "SUMMARY") vev))
+          ,((extract "SUMMARY") vev)
             ;; ,((extract "SUMMARY") vev)
           )))
 

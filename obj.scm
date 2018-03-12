@@ -12,6 +12,8 @@
   #:use-module (ice-9 format)
   #:use-module (ice-9 curried-definitions)
 
+  #:use-module (time)
+
   #:export (<ics-path-object>
 
             ics-filepath
@@ -41,22 +43,6 @@
   ;; Should be a string or symbol, not yet decided
   (calendar #:getter containing-calendar)
   )
-
-(define-macro (test-until-success error . body)
-  (if (null? body)
-      `(throw 'out-of-cases)
-      `(catch ,error
-         (lambda () ,(car body))
-         (lambda args
-           (test-until-success ,error ,@(cdr body))))))
-
-(define (string->date* str)
-  (test-until-success
-   'misc-error
-   (string->date str "~Y~m~dT~H~M~S~z") ; UTC-time
-   (string->date str "~Y~m~dT~H~M~S")   ; Local time
-   (string->date str "~Y~m~d")          ; All day
-   (make-date 0 0 0 0 0 0 0 0)))
 
 (define-method (update-instance-for-different-class
                 (old <ics-object>)

@@ -1,5 +1,5 @@
 (define-module (server-handler)
-  #:use-module (main)
+  #:use-module (code)
   #:use-module (sxml simple)
 
   #:use-module (output line)

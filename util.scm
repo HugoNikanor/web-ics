@@ -5,7 +5,7 @@
   #:use-module (macros arrow)
   #:export (flatten inner intersperce file-extension sort*
             fold-multiple unique group-by path-join path-join*
-            pair-map))
+            pair-map test-until-success))
 
 (define (flatten tree)
   "Flattens a tree, same as printing the tree
@@ -99,3 +99,10 @@ and not just the car."
       (cons (func list)
             (pair-map func (cdr list)))))
 
+(define-macro (test-until-success error . body)
+  (if (null? body)
+      `(throw 'out-of-cases)
+      `(catch ,error
+         (lambda () ,(car body))
+         (lambda args
+           (test-until-success ,error ,@(cdr body))))))
