@@ -5,7 +5,7 @@
 ;;; Currently I'm working on getting ICS files properly read
 ;;; and the correct data extracted from them.
 
-(define-module (main)
+(define-module (code)
   #:use-module (ics)
   #:use-module (ics type object)
   #:use-module (ics type property property)
@@ -23,7 +23,7 @@
 
   #:use-module (ice-9 ftw)
   ;; #:use-module (ice-9 format)
-  ;; (ice-9 rdelim)
+  #:use-module (ice-9 rdelim)
 
   #:use-module (util)
   #:use-module (format)
@@ -37,7 +37,7 @@
 (define (get-files-in-dir path ext)
   "Returns a list of all direct children of <path> which have
 the file extension <ext>"
-  (map (compose (cut string-append path <>)
+  (map (compose (cut path-join* path <>)
                 car)
        (filter (lambda (node)
                  (apply (lambda (name flags . children)
@@ -45,29 +45,57 @@ the file extension <ext>"
                         node))
                (cddr (file-system-tree path)))))
 
+(define *cal-root*
+  (path-join* (getenv "HOME")
+              ".calendars"))
 
+;;; TODO find better way to check if file is hidden
+(define (hidden? filename)
+  (string=? "." (string-take filename 1)))
+
+(define *cal-paths*
+  (map (cut path-join* *cal-root* <>)
+       (scandir *cal-root* (negate hidden?))))
+
+;;; This is explicitly here to be able to set colors later
+(define *calendars*
+  (map get-cal-name *cal-paths*))
+
+#;
 (define *cal-path*
   (string-append
    (getenv "HOME")
    ;; "/.calendars/b85ba2e9-18aa-4451-91bb-b52da930e977/"
-   "/.calendars/D2.b/"
+   "/.calendars/D2.b"
    ))
+
+(define (string-car str)
+  (car (string->list str)))
+
+(define (get-cal-name calendar-path)
+  (if (not (null? (scandir calendar-path (cut string=? "displayname" <>))))
+      (call-with-input-file (path-join* calendar-path "displayname") read-line)
+      (basename calendar-path)))
 
 ;;; list of all ics-objects in filename
 ;;; parsed as if each file only had one VEVENT
 ;;; origininal path of file stored in object as well
 (define *ics-objs*
-  (map (lambda (filename)
-         (-> filename
-             open-input-file
-             ics->scm
-             car
-             ics-object-components
-             car
-             (change-class <ics-path-object>)
-             (slot-set-ret! 'path filename)))
-       (get-files-in-dir *cal-path* "ics")))
-
+  (map (lambda (calendar-path)
+         (let* ((files (get-files-in-dir calendar-path "ics"))
+                (name (get-cal-name calendar-path)))
+           (map (lambda (filename)
+                  (-> filename
+                      open-input-file
+                      ics->scm
+                      car
+                      ics-object-components
+                      car
+                      (change-class <ics-path-object>)
+                      (slot-set-ret! 'path filename)
+                      (slot-set-ret! 'calendar name)))
+                files)))
+       *cal-paths*))
 
 (define *limited-events*
   (filter-on-property "DTSTART"

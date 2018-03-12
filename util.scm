@@ -4,7 +4,7 @@
   #:use-module (srfi srfi-26)
   #:use-module (macros arrow)
   #:export (flatten inner intersperce file-extension sort*
-            fold-multiple unique group-by path-join
+            fold-multiple unique group-by path-join path-join*
             pair-map))
 
 (define (flatten tree)
@@ -32,6 +32,9 @@ and removing all internal parethese."
 
 (define (path-join lst)
   (string-join lst "/" 'infix))
+
+(define (path-join* . lst)
+  (path-join lst))
 
 (define* (sort* items comperator #:optional (get identity))
   "A sort function more in line with how python's sorted works"

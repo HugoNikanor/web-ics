@@ -38,24 +38,38 @@
   (start-date #:getter start)
   (end-date #:getter end)
   (event-length #:getter elength)
+  ;; Should be a string or symbol, not yet decided
+  (calendar #:getter containing-calendar)
   )
+
+(define-macro (test-until-success error . body)
+  (if (null? body)
+      `(throw 'out-of-cases)
+      `(catch ,error
+         (lambda () ,(car body))
+         (lambda args
+           (test-until-success ,error ,@(cdr body))))))
+
+(define (string->date* str)
+  (test-until-success
+   'misc-error
+   (string->date str "~Y~m~dT~H~M~S~z") ; UTC-time
+   (string->date str "~Y~m~dT~H~M~S")   ; Local time
+   (string->date str "~Y~m~d")          ; All day
+   (make-date 0 0 0 0 0 0 0 0)))
 
 (define-method (update-instance-for-different-class
                 (old <ics-object>)
                 (new <ics-path-object>))
   (let ((stime (slot-set! new 'start-date
-                          (string->date
-                           ((extract "DTSTART") new)
-                           "~Y~m~dT~H~M~S~z")))
+                          (string->date*
+                           ((extract "DTSTART") new))))
         (etime (slot-set! new 'end-date
-                          (string->date
-                           ((extract "DTEND") new)
-                           "~Y~m~dT~H~M~S~z"))))
+                          (string->date*
+                           ((extract "DTEND") new)))))
     (slot-set! new 'event-length
                (time-difference (date->time-utc etime)
                                 (date->time-utc stime)))))
-
-
 
 (define (describe-vevent vev)
   (let ((props (ics-object-properties vev)))
