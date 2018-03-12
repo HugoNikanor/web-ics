@@ -12,4 +12,4 @@
              (server-handler))
 
 (define (main args)
-  (run-server handler))
+  (run-server handler 'http '(#:addr 0)))

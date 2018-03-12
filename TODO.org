@@ -1,11 +1,16 @@
 * Blandat
-** TODO [#A] Saker behöver läggas ut bättre
+** TODO [#B] Saker behöver läggas ut bättre
    Looks like It only works for the first set of overlapping
 events per day.
 -----
    <2018-02-28 Wed 00:18> Implementerat nu!
    Kan dock bli problem om saker ligger om lott för mycket,
    testa på någonting annat än ett blockschema.
+   
+<2018-03-12 Mon 20:49> Nu är algorithmen till slut ordentligt
+rekursiv, och gör faktiskt det den ska. Problemet med aktiviteter
+som ligger för mycket om lott kravstår fortfarande, men blockschema
+stödjs utmärkt!
 -----   
 Id\'e på algoritm för varje dag:
 1. Kolla på första elementet

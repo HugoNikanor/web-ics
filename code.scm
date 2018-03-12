@@ -11,6 +11,7 @@
   #:use-module (ics type property property)
 
   #:use-module (srfi srfi-1)             ; List library.
+  #:use-module (srfi srfi-8)             ; receive
   #:use-module (srfi srfi-19)            ; Time/Date library.
   #:use-module (srfi srfi-26)            ; Specializing parameters
 
@@ -97,13 +98,7 @@ the file extension <ext>"
                 files)))
        *cal-paths*))
 
-(define *limited-events*
-  #;
-  (filter-on-property "DTSTART"
-                      (lambda (time)
-                        (=  16 (string-length time)))
-  *ics-objs*)
-  *ics-objs*)
+(define *limited-events* *ics-objs*)
 
 (define (event-filter event)
   (string-contains ((extract "SUMMARY") event)
@@ -137,24 +132,37 @@ the file extension <ext>"
 (define *sorted-groups*
   (sort* *group-evs* time<? (compose date->time-utc car)))
 
+;;; Returns two values, the take-while list,
+;;; and the drop-while list.
+;;;
+;;; TODO this can be implemented better, but it doesn't matter
+(define (take-and-drop-while pred lst)
+  (values (take-while pred lst)
+          (drop-while pred lst)))
+
+;;; Takes a list on the form
+;;; ((date calendar-obj ...) ...)
+;;; And makes each sublist have better laid out elements.
+;;; It's not perfect if there are many elements that overlap
+;;; In different ways. But it works perfectly for a block
+;;; schedule!
 (define (fix-event-widths evs)
-  (for-each
-   (lambda (day-evs)
-     (if (= 1 (length day-evs))
-         #f
-         (let* ((date (car day-evs))
-                (ev-list (cdr day-evs))
-                (overlapping
-                 (take-while
-                  (lambda (next)
-                    (displayln next)
-                    (time<=? (date->time-utc (start next))
-                             (date->time-utc (end (cadr day-evs)))))
-                  ev-list)))
-           (for-each set-x! overlapping (iota 10))
-           (for-each (cut set-width! <> (/ (length overlapping)))
-                     overlapping))))
-   evs))
+  (define (fix-within-day day-evs)
+    (if (null? day-evs)
+        #f
+        (let ((ev-list day-evs))
+          (receive (overlapping rest)
+              (take-and-drop-while
+               (lambda (next)
+                 (time<? (date->time-utc (start next))
+                         (date->time-utc (end (car ev-list)))))
+               ev-list)
+            (for-each set-x! overlapping (iota 10))
+            (for-each (cut set-width! <> (/ (length overlapping)))
+                      overlapping)
+            (fix-within-day rest)))))
+  (for-each (compose fix-within-day cdr)
+            evs))
 
 (fix-event-widths *group-evs*)
 
