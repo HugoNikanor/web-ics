@@ -23,6 +23,7 @@
         (zone-offset (date-zone-offset obj)))
     (make-date nsecs seconds minutes hours date month year zone-offset)))
 
+;;; Like the regular string->date, but specialized for my dates.  
 (define (string->date* str)
   (test-until-success
    'misc-error
