@@ -1,10 +1,3 @@
-;;; The plan with this program is to create web based calendar
-;;; viewor of a vdir directory, as created by vdirsyncer, and
-;;; which can also be read by khal.
-;;;
-;;; Currently I'm working on getting ICS files properly read
-;;; and the correct data extracted from them.
-
 (define-module (code)
   #:use-module (ics)
   #:use-module (ics type object)
@@ -17,14 +10,13 @@
 
   ;; These are from my guile-libs
   #:use-module (macros arrow)
-  ;; #:use-module (css)
   #:use-module (output line)
 
   #:use-module (oop goops)
 
   #:use-module (ice-9 ftw)
-  ;; #:use-module (ice-9 format)
   #:use-module (ice-9 rdelim)
+  #:use-module (ice-9 curried-definitions)
 
   #:use-module (util)
   #:use-module (format)
@@ -34,6 +26,12 @@
   #:export (get-rand-color 
             vev->sxml event-group->sxml get-sxml-doc
             *sorted-groups*))
+
+;;; Possibly break these out into a file tree module
+
+;;; TODO find better way to check if file is hidden
+(define (hidden? filename)
+  (string=? "." (string-take filename 1)))
 
 (define (get-cal-name calendar-path)
   (if (not (null? (scandir calendar-path (cut string=? "displayname" <>))))
@@ -51,36 +49,29 @@ the file extension <ext>"
                         node))
                (cddr (file-system-tree path)))))
 
+;;; Currently calendars can only be auto detected, and all
+;;; have to be direct childs of a common ancestor. Changing
+;;; this shouldn't be to hard.
+
+;;; The path of the common ancestor
 (define *cal-root*
   (path-join* (getenv "HOME")
               ".calendars"))
 
-;;; TODO find better way to check if file is hidden
-(define (hidden? filename)
-  (string=? "." (string-take filename 1)))
-
+;;; List of paths to all specific calendars, it should be
+;;; possibly to add extra calendars to this.
 (define *cal-paths*
   (map (cut path-join* *cal-root* <>)
        (scandir *cal-root* (negate hidden?))))
 
-;;; This is explicitly here to be able to set colors later
+;;; Names of all calendars,
+;;; this is explicitly here to be able to set colors later
 (define *calendars*
   (map get-cal-name *cal-paths*))
 
-#;
-(define *cal-path*
-  (string-append
-   (getenv "HOME")
-   ;; "/.calendars/b85ba2e9-18aa-4451-91bb-b52da930e977/"
-   "/.calendars/D2.b"
-   ))
-
-(define (string-car str)
-  (car (string->list str)))
-
 ;;; list of all ics-objects in filename
 ;;; parsed as if each file only had one VEVENT
-;;; origininal path of file stored in object as well
+;;; Some aux data is also stored in the object 
 (define *ics-objs*
   (append-map (lambda (calendar-path)
          (let* ((files (get-files-in-dir calendar-path "ics"))
@@ -98,24 +89,25 @@ the file extension <ext>"
                 files)))
        *cal-paths*))
 
-(define *limited-events* *ics-objs*)
+;;; This whole thing with summary filters should probably be
+;;; replaced with filters that can work on any field.
+;;; They should also be set in some form of config file
+;;; instead of in the program source
 
-(define (event-filter event)
-  (string-contains ((extract "SUMMARY") event)
-                   "THEN18"))
+;;; Different summary filters
+(define (no-filter _) #t)
+(define ((contains-filter string) summary)
+  (string-contains string summary))
 
-(define (summary-filter arg)
-  #t)
+;;; Choose one summary filter
+(define summary-filter no-filter)
+;; (define summary-filter (contains-filter "THEN18"))
 
-;; (define summary-filter 
-;;   (cut string-contains <> "THEN18"))
-
-;;; One filter for each property type of importance possibly
-;;; is better, I'm at least keeping this for now.
+;;; Apply it
 (define *filtered-events*
   (filter-on-property "SUMMARY"
                       summary-filter
-                      *limited-events*))
+                      *ics-objs*))
 
 ;;; Sorted events
 (define *sevs* (sort* *filtered-events* time<? event-time)) 
@@ -131,14 +123,6 @@ the file extension <ext>"
 
 (define *sorted-groups*
   (sort* *group-evs* time<? (compose date->time-utc car)))
-
-;;; Returns two values, the take-while list,
-;;; and the drop-while list.
-;;;
-;;; TODO this can be implemented better, but it doesn't matter
-(define (take-and-drop-while pred lst)
-  (values (take-while pred lst)
-          (drop-while pred lst)))
 
 ;;; Takes a list on the form
 ;;; ((date calendar-obj ...) ...)
@@ -166,16 +150,6 @@ the file extension <ext>"
 
 (fix-event-widths *group-evs*)
 
-;; (if (null? evs)
-;;     '()
-;;     (let ()
-;;       (for-each (cut set-width! <> (/ (length overlapping)))
-;;                 overlapping)
-;;       evs
-;;       ))
-
-;; (fix-event-widths *group-evs*)
-
 (define *colors*
   '((red #xFF 0 0)
     (green 0 #xFF 0)
@@ -186,28 +160,7 @@ the file extension <ext>"
 (define (get-rand-color)
   (cdr (list-ref *colors* (random (length *colors*)))))
 
-
 ;;; These should be broken out into an HTML module
-
-(define (date->decimal-hour date)
-  "Coverts an SRFI-19 date objects hour and minute field
-to a number between 0 and 24"
-  (+ (date-hour date)
-     (/ (date-minute date)
-        60)))
-
-(define (time->decimal-hour time)
-  "This should only be used on time intervals,
-never on absolute times. For that see date->decimal-hour"
-  (exact->inexact (/ (time-second time)
-                     3600)))
-
-
-(define (date->decimal-hour date)
-  (exact->inexact
-   (+ (date-hour date)
-      (/ (date-minute date)
-         60))))
 
 (define *calendar-colors*
   (map cons *calendars*

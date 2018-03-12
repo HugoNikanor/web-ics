@@ -5,7 +5,8 @@
   #:use-module (macros arrow)
   #:export (flatten inner intersperce file-extension sort*
             fold-multiple unique group-by path-join path-join*
-            pair-map test-until-success))
+            pair-map test-until-success string-car
+            take-and-drop-while))
 
 (define (flatten tree)
   "Flattens a tree, same as printing the tree
@@ -106,3 +107,14 @@ and not just the car."
          (lambda () ,(car body))
          (lambda args
            (test-until-success ,error ,@(cdr body))))))
+
+(define (string-car str)
+  (car (string->list str)))
+
+;;; Returns two values, the take-while list,
+;;; and the drop-while list.
+;;;
+;;; TODO this can be implemented better, but it doesn't matter
+(define (take-and-drop-while pred lst)
+  (values (take-while pred lst)
+          (drop-while pred lst)))

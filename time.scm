@@ -9,7 +9,10 @@
             event-date
             event-time
             vevent->time
-            string->date*))
+            string->date*
+            date->decimal-hour
+            time->decimal-hour
+            date->decimal-hour))
 
 (define (drop-time obj)
   "Removes everything from hour and down from a date object"
@@ -59,10 +62,27 @@ Currently does't check timezones, and assumes the current one"
       string->date*
       date->time-utc))
 
-
-
 (define (vevent->time field vev)
   (-> vev
       ((extract field))
       string->date*
       date->time-utc))
+
+(define (date->decimal-hour date)
+  "Coverts an SRFI-19 date objects hour and minute field
+to a number between 0 and 24"
+  (+ (date-hour date)
+     (/ (date-minute date)
+        60)))
+
+(define (time->decimal-hour time)
+  "This should only be used on time intervals,
+never on absolute times. For that see date->decimal-hour"
+  (exact->inexact (/ (time-second time)
+                     3600)))
+
+(define (date->decimal-hour date)
+  (exact->inexact
+   (+ (date-hour date)
+      (/ (date-minute date)
+         60))))
