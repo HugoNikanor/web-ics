@@ -1,0 +1,11 @@
+[Unit]
+Description=Calendar thingy
+
+[Service]
+Type=simple
+ExecStart=/var/www/calendar/web-ics/main.scm
+Restart=always
+
+[Install]
+WantedBy=network.target
+
