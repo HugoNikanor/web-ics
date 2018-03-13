@@ -14,6 +14,7 @@
   #:use-module (ice-9 rdelim)
 
   #:use-module (util)
+  #:use-module (logger)
   #:use-module (mime)
   #:export (*default-mime* handler))
 
@@ -23,6 +24,7 @@
 
 (define (handler request body)
   (let ((path (split-and-decode-uri-path (uri-path (request-uri request)))))
+    (log (request-uri request))
     (cond ((null? path)    ; This can't be the best way to check for root
            (values '((content-type text/html))
                    (get-document)))
