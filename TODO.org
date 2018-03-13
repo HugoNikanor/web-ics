@@ -53,6 +53,16 @@ Kan dock finnas andra objekt av vikt i en VCALENDAR
    in på =/file/../main.scm=, men det ändrades till =/main.scm=,
    vilket 404-ade. Tror det är säkert, men bör ta en ordentlig
    titt på det.
+** TODO [#B] Filpath relativ nuvarande mapp
+   I server-handler finns pathen =./front=, vilket enbart fungerar om $PWD är
+   är på rätt plats. Bör ändras antingen till att filen hittar sig själv,
+   alternativt att den installerar sig någon stans.
+** TODO [#C] Statiska filer
+   För nuvarande har jag lite kod för att "servera" dem. Möjligen ska det läggas
+över till nginx (eller motsvarande). Fast troligen inte.
+** TODO [#C] Systemd service file
+** TODO [#C] Nginx site file
+** TODO [#C] Ordentliga installationsgrejer
 * Tid
 ** Datum, tider, och datumstider
    - date :: YYYYMMDD
