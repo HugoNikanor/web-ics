@@ -16,6 +16,14 @@ body {
 	padding-top: 50px;
 }
 
+#gen-time {
+	position: fixed;
+	left: 1em;
+	bottom: 1em;
+        color: grey;
+}
+
+
 .calendar {
 	height: calc(90vh - 50px);
 

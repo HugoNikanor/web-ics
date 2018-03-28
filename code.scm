@@ -231,14 +231,16 @@ the file extension <ext>"
                   (href "file/style.css")))
          (script (@ (src "file/jquery-3.3.1.min.js")) "")
          (script (@ (src "file/script.js")) ""))
-        (body (div (@ (class "calendar"))
+        (body (span (@ (id "gen-time"))
+                    ,(date->string (current-date) "Last Updated: ~c"))
+              (div (@ (class "calendar"))
                    ,@ (map (lambda (time)
                              `(div (@ (id ,(string-append "clock-" time))
                                       (class "clock"))
                                    ,(string-append time ":00")))
                            (map number->string (iota 12 0 2)))
-                      (div (@ (class "days"))
-                           ,@ (map event-group->sxml evgrps))))))
+                   (div (@ (class "days"))
+                        ,@ (map event-group->sxml evgrps))))))
 
 
 
