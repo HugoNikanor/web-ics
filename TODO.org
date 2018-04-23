@@ -63,6 +63,7 @@ Kan dock finnas andra objekt av vikt i en VCALENDAR
 ** TODO [#C] Systemd service file
 ** TODO [#C] Nginx site file
 ** TODO [#C] Ordentliga installationsgrejer
+** TODO [#B] Upprepande events
 * Tid
 ** Datum, tider, och datumstider
    - date :: YYYYMMDD

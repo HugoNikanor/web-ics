@@ -20,9 +20,14 @@ body {
 	position: fixed;
 	left: 1em;
 	bottom: 1em;
-        color: grey;
+	color: grey;
 }
 
+#goto-today {
+	position: fixed;
+	right: 1em;
+	bottom: 1em;
+}
 
 .calendar {
 	height: calc(90vh - 50px);
@@ -71,6 +76,11 @@ body {
 
 	margin-left: 0.5em;
 	border: 1px solid black;
+
+        /* I want this to hide those parts of the events that are
+           longer than their day field. It does that, but it also
+           hides the date for each day */
+        /* overflow: hidden; */
 }
 
 .meta {

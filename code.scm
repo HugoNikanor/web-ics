@@ -210,13 +210,15 @@ the file extension <ext>"
 ;;; An event group is a list where the car is a time object,
 ;;; and the cdr is a list of VEVENT's
 (define (event-group->sxml evgrp)
-  (let ((date (car evgrp)))
-    `(div (@ (class "day"))
+  (let* ((date (car evgrp))
+         (datestr (date->string date "~1")))
+    `(div (@ (class "day")
+             (id ,datestr))
           (div (@ (class "meta"))
                (span (@ (class "dayname"))
                      ,(date->string date "~a"))
                (span (@ (class "daydate"))
-                     ,(date->string date "~1")))
+                     ,datestr))
           (div (@ (class "events"))
                ,@ (map vev->sxml (cdr evgrp))))))
 
@@ -233,6 +235,9 @@ the file extension <ext>"
          (script (@ (src "file/script.js")) ""))
         (body (span (@ (id "gen-time"))
                     ,(date->string (current-date) "Last Updated: ~c"))
+              (button (@ (id "goto-today")
+                         (onclick "gotoToday()"))
+                      "Goto Today")
               (div (@ (class "calendar"))
                    ,@ (map (lambda (time)
                              `(div (@ (id ,(string-append "clock-" time))
