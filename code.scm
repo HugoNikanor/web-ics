@@ -118,8 +118,14 @@ the file extension <ext>"
 ;;; The cdr is a list of ics-objects which start on that day
 ;;; (endtime might be in another day)
 
+;;; TODO I currently only throw away the timezone information.
+;;; Events are still laid out correctly, but events that start
+;;; /near/ midnight might be placed in the wrong day.
+;;; 
+;;; /Near/ defined as events closer to midnight than their zone
+;;; offset.
 (define *group-evs*
- (group-by event-date *sevs*))
+ (group-by (compose drop-zone-offset event-date) *sevs*))
 
 (define *sorted-groups*
   (sort* *group-evs* time<? (compose date->time-utc car)))

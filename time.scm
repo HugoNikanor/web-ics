@@ -5,6 +5,7 @@
   #:use-module (util)
 
   #:export (drop-time
+            drop-zone-offset
             event->time
             event-date
             event-time
@@ -24,6 +25,18 @@
         (month (date-month obj))
         (year (date-year obj))
         (zone-offset (date-zone-offset obj)))
+    (make-date nsecs seconds minutes hours date month year zone-offset)))
+
+(define (drop-zone-offset obj)
+  "Removes zone offset from a date object"
+  (let ((nsecs (date-nanosecond obj))
+        (seconds (date-second obj))
+        (minutes (date-minute obj))
+        (hours (date-hour obj))
+        (date (date-day obj))
+        (month (date-month obj))
+        (year (date-year obj))
+        (zone-offset 0))
     (make-date nsecs seconds minutes hours date month year zone-offset)))
 
 ;;; Like the regular string->date, but specialized for my dates.  

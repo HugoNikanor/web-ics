@@ -22,9 +22,12 @@ Id\'e på algoritm för varje dag:
 Den här kanske kan leda till problem om eventen ligger i en
 "pyramid". Altså att det blir fler och fler överlapp ju
 längre ner man kommer.
-** TODO [#B] I vissa fall finns en dag med flera gånger
+** DONE [#B] I vissa fall finns en dag med flera gånger
 Troligen beror det på att jag inte klipper bort timmar
 och mindre från datumtider i vissa fall.
+
+Problemet berodde på att vissa objekt skapades med tidzonsoffset,
+allt emedans andra into gjorde det.
 ** TODO [#C] Tider på sidan bör vara relativa skärmen
    Så att tiderna och deras sträck alltid är synliga, även
    när man skrollar. En alternativ lösning är att helt
