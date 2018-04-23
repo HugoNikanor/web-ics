@@ -22,6 +22,13 @@ Id\'e på algoritm för varje dag:
 Den här kanske kan leda till problem om eventen ligger i en
 "pyramid". Altså att det blir fler och fler överlapp ju
 längre ner man kommer.
+** TODO [#A] Kalenders ska omkollas när sidan laddas om
+För nuvarande kollas bara filerna när programmet startar, en
+simpel omstart ger nya grejer. Jag testar med att kolla om
+filerna vid varje access, men det tar ~5s.
+
+Kan ha någonting med filaccess, alternativt kör några av
+algoritmerna i O(n^2).
 ** DONE [#B] I vissa fall finns en dag med flera gånger
 Troligen beror det på att jag inte klipper bort timmar
 och mindre från datumtider i vissa fall.

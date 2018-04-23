@@ -23,6 +23,7 @@
 (define *default-mime* "text/plain")
 
 (define (handler request body)
+  (format #t "Incomming Request ~s\n" request)
   (let ((path (split-and-decode-uri-path (uri-path (request-uri request)))))
     (log (request-uri request))
     (cond ((null? path)    ; This can't be the best way to check for root
@@ -44,7 +45,7 @@
   (with-output-to-string
     (lambda ()
       (displayln "<!doctype html>")
-      (sxml->xml (get-sxml-doc *sorted-groups*)))))
+      (sxml->xml (get-sxml-doc (get-sorted-groups))))))
 
 ;;; Returns the full 404 page, with
 ;;; mulitple return values and all!

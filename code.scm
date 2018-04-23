@@ -25,7 +25,7 @@
 
   #:export (get-rand-color 
             vev->sxml event-group->sxml get-sxml-doc
-            *sorted-groups*))
+            get-sorted-groups))
 
 ;;; Possibly break these out into a file tree module
 
@@ -53,42 +53,6 @@ the file extension <ext>"
 ;;; have to be direct childs of a common ancestor. Changing
 ;;; this shouldn't be to hard.
 
-;;; The path of the common ancestor
-(define *cal-root*
-  (path-join* (getenv "HOME")
-              ".calendars"))
-
-;;; List of paths to all specific calendars, it should be
-;;; possibly to add extra calendars to this.
-(define *cal-paths*
-  (map (cut path-join* *cal-root* <>)
-       (scandir *cal-root* (negate hidden?))))
-
-;;; Names of all calendars,
-;;; this is explicitly here to be able to set colors later
-(define *calendars*
-  (map get-cal-name *cal-paths*))
-
-;;; list of all ics-objects in filename
-;;; parsed as if each file only had one VEVENT
-;;; Some aux data is also stored in the object 
-(define *ics-objs*
-  (append-map (lambda (calendar-path)
-         (let* ((files (get-files-in-dir calendar-path "ics"))
-                (name (get-cal-name calendar-path)))
-           (map (lambda (filename)
-                  (-> filename
-                      open-input-file
-                      ics->scm
-                      car
-                      ics-object-components
-                      car
-                      (change-class <ics-path-object>)
-                      (slot-set-ret! 'path filename)
-                      (slot-set-ret! 'calendar name)))
-                files)))
-       *cal-paths*))
-
 ;;; This whole thing with summary filters should probably be
 ;;; replaced with filters that can work on any field.
 ;;; They should also be set in some form of config file
@@ -103,32 +67,6 @@ the file extension <ext>"
 (define summary-filter no-filter)
 ;; (define summary-filter (contains-filter "THEN18"))
 
-;;; Apply it
-(define *filtered-events*
-  (filter-on-property "SUMMARY"
-                      summary-filter
-                      *ics-objs*))
-
-;;; Sorted events
-(define *sevs* (sort* *filtered-events* time<? event-time)) 
-
-
-;;; Each element is a day, the car is a time-utc object, which
-;;; is exactly midnight of the day in question (timezone unclear).
-;;; The cdr is a list of ics-objects which start on that day
-;;; (endtime might be in another day)
-
-;;; TODO I currently only throw away the timezone information.
-;;; Events are still laid out correctly, but events that start
-;;; /near/ midnight might be placed in the wrong day.
-;;; 
-;;; /Near/ defined as events closer to midnight than their zone
-;;; offset.
-(define *group-evs*
- (group-by (compose drop-zone-offset event-date) *sevs*))
-
-(define *sorted-groups*
-  (sort* *group-evs* time<? (compose date->time-utc car)))
 
 ;;; Takes a list on the form
 ;;; ((date calendar-obj ...) ...)
@@ -136,7 +74,7 @@ the file extension <ext>"
 ;;; It's not perfect if there are many elements that overlap
 ;;; In different ways. But it works perfectly for a block
 ;;; schedule!
-(define (fix-event-widths evs)
+(define (fix-event-widths! evs)
   (define (fix-within-day day-evs)
     (if (null? day-evs)
         #f
@@ -154,8 +92,6 @@ the file extension <ext>"
   (for-each (compose fix-within-day cdr)
             evs))
 
-(fix-event-widths *group-evs*)
-
 (define *colors*
   '((red #xFF 0 0)
     (green 0 #xFF 0)
@@ -165,6 +101,13 @@ the file extension <ext>"
 
 (define (get-rand-color)
   (cdr (list-ref *colors* (random (length *colors*)))))
+
+;;; All global variables are uggly
+(define *cal-root* (path-join* (getenv "HOME")
+                             ".calendars"))
+(define *cal-paths* (map (cut path-join* *cal-root* <>)
+                         (scandir *cal-root* (negate hidden?))))
+(define *calendars* (map get-cal-name *cal-paths*))
 
 ;;; These should be broken out into an HTML module
 
@@ -255,3 +198,94 @@ the file extension <ext>"
 
 
 
+;;; ------------------------------------------------------------
+
+;;; The path of the common ancestor
+;; (define *cal-root*
+;;   (path-join* (getenv "HOME")
+;;               ".calendars"))
+
+
+;;; This runs slow on my laptop:
+;;; 4.919275s real time, 6.543761s run time.  3.262445s spent in GC.
+;;;
+;;; And seeing as the server is slower something needs to be done to speed this up.
+(define (get-sorted-groups)
+  (let* ((ics-objs (append-map (lambda (calendar-path)
+                                 (let* ((files (get-files-in-dir calendar-path "ics"))
+                                        (name (get-cal-name calendar-path)))
+                                   (map (lambda (filename)
+                                          (-> filename
+                                              open-input-file
+                                              ics->scm
+                                              car
+                                              ics-object-components
+                                              car
+                                              (change-class <ics-path-object>)
+                                              (slot-set-ret! 'path filename)
+                                              (slot-set-ret! 'calendar name)))
+                                        files)))
+                               *cal-paths*))
+         (filtered-events (filter-on-property "SUMMARY" summary-filter ics-objs))
+         (sorted-events (sort* filtered-events time<? event-time))
+         (grouped-events (group-by (compose drop-zone-offset event-date)
+                                   sorted-events)))
+    (fix-event-widths! grouped-events)
+    (sort* grouped-events time<? (compose date->time-utc car))))
+
+;; ;;; List of paths to all specific calendars, it should be
+;; ;;; possibly to add extra calendars to this.
+;; (define *cal-paths*
+;;   (map (cut path-join* *cal-root* <>)
+;;        (scandir *cal-root* (negate hidden?))))
+
+;; ;;; Names of all calendars,
+;; ;;; this is explicitly here to be able to set colors later
+;; (define *calendars*
+;;   (map get-cal-name *cal-paths*))
+
+;; ;;; list of all ics-objects in filename
+;; ;;; parsed as if each file only had one VEVENT
+;; ;;; Some aux data is also stored in the object 
+;; (define *ics-objs*
+;;   (append-map (lambda (calendar-path)
+;;          (let* ((files (get-files-in-dir calendar-path "ics"))
+;;                 (name (get-cal-name calendar-path)))
+;;            (map (lambda (filename)
+;;                   (-> filename
+;;                       open-input-file
+;;                       ics->scm
+;;                       car
+;;                       ics-object-components
+;;                       car
+;;                       (change-class <ics-path-object>)
+;;                       (slot-set-ret! 'path filename)
+;;                       (slot-set-ret! 'calendar name)))
+;;                 files)))
+;;        *cal-paths*))
+
+;; (define *filtered-events*
+;;   (filter-on-property "SUMMARY"
+;;                       summary-filter
+;;                       *ics-objs*))
+
+;; ;;; Sorted events
+;; (define *sevs* (sort* *filtered-events* time<? event-time)) 
+
+
+;; ;;; Each element is a day, the car is a time-utc object, which
+;; ;;; is exactly midnight of the day in question (timezone unclear).
+;; ;;; The cdr is a list of ics-objects which start on that day
+;; ;;; (endtime might be in another day)
+
+;; ;;; TODO I currently only throw away the timezone information.
+;; ;;; Events are still laid out correctly, but events that start
+;; ;;; /near/ midnight might be placed in the wrong day.
+;; ;;; 
+;; ;;; /Near/ defined as events closer to midnight than their zone
+;; ;;; offset.
+;; (define *group-evs*
+;;  (group-by (compose drop-zone-offset event-date) *sevs*))
+
+;; (define *sorted-groups*
+;;   (sort* *group-evs* time<? (compose date->time-utc car)))
