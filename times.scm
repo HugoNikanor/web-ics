@@ -1,27 +1,33 @@
-;; This buffer is for text that is not saved, and for Lisp evaluation.
-;; To create a file, visit it with C-x C-f and enter text in its buffer.
+;;; This file is not intended to be run, but is rather for interactive use.
+;;; It details the execution speeds of some different functions. It's however
+;;; not guaranteed to be up to date.
+;;;
+;;; This should preferably be replaced by some proper test scripts in the future.
+;;;
+;;; It would also be good if this was in propper literate code.
 
 (use-modules (statprof))
 
 (statprof (lambda ()
             (map 1+ (iota 1000000))
             #f))
-;; %     cumulative   self             
-;; time   seconds     seconds  procedure
-;;  47.37 156784.16      0.22  ice-9/boot-9.scm:220:5:map1
-;;  26.32      0.12      0.12  ice-9/boot-9.scm:1151:0:iota
-;;  21.05      0.10      0.10  #{1+}#
-;;   5.26      0.02      0.02  list?
-;;   0.00      0.46      0.00  <current input>:8:10
-;;   0.00      0.02      0.00  ice-9/boot-9.scm:215:2:map
-;; ---
-;; Sample count: 19
-;; Total time: 0.464966206 seconds (1.226576068 seconds in GC)
+
+%     cumulative   self             
+time   seconds     seconds  procedure
+ 47.37 156784.16      0.22  ice-9/boot-9.scm:220:5:map1
+ 26.32      0.12      0.12  ice-9/boot-9.scm:1151:0:iota
+ 21.05      0.10      0.10  #{1+}#
+  5.26      0.02      0.02  list?
+  0.00      0.46      0.00  <current input>:8:10
+  0.00      0.02      0.00  ice-9/boot-9.scm:215:2:map
+---
+Sample count: 19
+Total time: 0.464966206 seconds (1.226576068 seconds in GC)
 
 (statprof (lambda ()
             (calendar-paths->ics-objects *cal-paths*)
             #f))
-;; => #f
+
 %     cumulative   self             
 time   seconds     seconds  procedure
  18.02      1.69      0.55  ice-9/format.scm:139:4:format:format-work
