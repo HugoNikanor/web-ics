@@ -205,32 +205,41 @@ the file extension <ext>"
 ;;   (path-join* (getenv "HOME")
 ;;               ".calendars"))
 
+(define (calendar-paths->ics-objects calendar-paths)
+  (append-map (lambda (calendar-path)
+                (let* ((files (get-files-in-dir calendar-path "ics"))
+                       (name (get-cal-name calendar-path)))
+                  (map (lambda (filename)
+                         (-> filename
+                             open-input-file
+                             ics->scm
+                             car
+                             ics-object-components
+                             car
+                             (change-class <ics-path-object>)
+                             (slot-set-ret! 'path filename)
+                             (slot-set-ret! 'calendar name)))
+                       files)))
+              calendar-paths))
 
 ;;; This runs slow on my laptop:
 ;;; 4.919275s real time, 6.543761s run time.  3.262445s spent in GC.
 ;;;
 ;;; And seeing as the server is slower something needs to be done to speed this up.
 (define (get-sorted-groups)
-  (let* ((ics-objs (append-map (lambda (calendar-path)
-                                 (let* ((files (get-files-in-dir calendar-path "ics"))
-                                        (name (get-cal-name calendar-path)))
-                                   (map (lambda (filename)
-                                          (-> filename
-                                              open-input-file
-                                              ics->scm
-                                              car
-                                              ics-object-components
-                                              car
-                                              (change-class <ics-path-object>)
-                                              (slot-set-ret! 'path filename)
-                                              (slot-set-ret! 'calendar name)))
-                                        files)))
-                               *cal-paths*))
+  "Running times are noted ABOVE each line"
+  (let* (;; 4.510746s real time, 5.340056s run time.  2.389783s spent in GC.
+         (ics-objs (calendar-paths->ics-objects *cal-paths*))
+         ;; 0.039438s real time, 0.039250s run time.  0.000000s spent in GC.
          (filtered-events (filter-on-property "SUMMARY" summary-filter ics-objs))
+         ;; 0.245995s real time, 0.264332s run time.  0.068449s spent in GC.
          (sorted-events (sort* filtered-events time<? event-time))
+         ;; 0.081934s real time, 0.081247s run time.  0.000000s spent in GC.
          (grouped-events (group-by (compose drop-zone-offset event-date)
                                    sorted-events)))
+    ;; 0.021054s real time, 0.020967s run time.  0.000000s spent in GC.
     (fix-event-widths! grouped-events)
+    ;; 0.045123s real time, 0.029314s run time.  0.000000s spent in GC.
     (sort* grouped-events time<? (compose date->time-utc car))))
 
 ;; ;;; List of paths to all specific calendars, it should be
