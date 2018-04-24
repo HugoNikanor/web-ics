@@ -29,6 +29,9 @@ filerna vid varje access, men det tar ~5s.
 
 Kan ha någonting med filaccess, alternativt kör några av
 algoritmerna i O(n^2).
+
+Troligen har det parsingshastigheten att göra. Kolla om det är
+möjligt att läsa alla objekt på samma ström. 
 ** DONE [#B] I vissa fall finns en dag med flera gånger
 Troligen beror det på att jag inte klipper bort timmar
 och mindre från datumtider i vissa fall.
