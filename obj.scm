@@ -67,7 +67,7 @@
                             slot-name
                             (slot-ref vev slot-name)))
                   (map slot-definition-name
-                       (class-direct-slots <ics-path-object>)))
+                       (class-direct-slots (class-of vev))))
              '("Internal VEVENT:" "================")
              (map (cut format #f "~10,@a: ~a" <> <>)
                   (map ics-property-name props)
