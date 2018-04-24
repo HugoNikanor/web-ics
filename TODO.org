@@ -29,6 +29,11 @@ filerna vid varje access, men det tar ~5s.
 
 Kan ha någonting med filaccess, alternativt kör några av
 algoritmerna i O(n^2).
+
+[2018-04-24 Tue] Verkar vara parsingen av kalendrar som är
+långsamt. Kolla om C-biblioteket är snabbare, alternativt
+om alla filerna kan slås ihop till en ström, och huruvida
+det ger någon hastighetsförbättring.
 ** DONE [#B] I vissa fall finns en dag med flera gånger
 Troligen beror det på att jag inte klipper bort timmar
 och mindre från datumtider i vissa fall.
