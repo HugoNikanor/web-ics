@@ -16,7 +16,7 @@
   #:use-module (util)
   #:use-module (logger)
   #:use-module (mime)
-  #:export (*default-mime* handler))
+  #:export (*default-mime* handler get-document))
 
 (define mime (get-mime-hash-table))
 

@@ -4,9 +4,9 @@
   #:use-module (ics type property property)
 
   #:use-module (srfi srfi-1)             ; List library.
-  #:use-module (srfi srfi-8)             ; receive
   #:use-module (srfi srfi-19)            ; Time/Date library.
   #:use-module (srfi srfi-26)            ; Specializing parameters
+  #:use-module (srfi srfi-41)            ; Streams
 
   ;; These are from my guile-libs
   #:use-module (macros arrow)
@@ -15,7 +15,6 @@
   #:use-module (oop goops)
 
   #:use-module (ice-9 ftw)
-  #:use-module (ice-9 rdelim)
   #:use-module (ice-9 curried-definitions)
 
   #:use-module (util)
@@ -23,35 +22,12 @@
   #:use-module (obj)
   #:use-module (time)
 
+  #:use-module (fs)
+  #:use-module (display)
+
   #:export (get-rand-color 
             vev->sxml event-group->sxml get-sxml-doc
-            *sorted-groups*))
-
-;;; Possibly break these out into a file tree module
-
-;;; TODO find better way to check if file is hidden
-(define (hidden? filename)
-  (string=? "." (string-take filename 1)))
-
-(define (get-cal-name calendar-path)
-  (if (not (null? (scandir calendar-path (cut string=? "displayname" <>))))
-      (call-with-input-file (path-join* calendar-path "displayname") read-line)
-      (basename calendar-path)))
-
-(define (get-files-in-dir path ext)
-  "Returns a list of all direct children of <path> which have
-the file extension <ext>"
-  (map (compose (cut path-join* path <>)
-                car)
-       (filter (lambda (node)
-                 (apply (lambda (name flags . children)
-                          (string=? ext (file-extension name)))
-                        node))
-               (cddr (file-system-tree path)))))
-
-;;; Currently calendars can only be auto detected, and all
-;;; have to be direct childs of a common ancestor. Changing
-;;; this shouldn't be to hard.
+            do-stuff))
 
 ;;; The path of the common ancestor
 (define *cal-root*
@@ -60,57 +36,60 @@ the file extension <ext>"
 
 ;;; List of paths to all specific calendars, it should be
 ;;; possibly to add extra calendars to this.
-(define *cal-paths*
-  (map (cut path-join* *cal-root* <>)
-       (scandir *cal-root* (negate hidden?))))
+(define (get-cal-paths cal-root)
+  (map (cut path-join* cal-root <>)
+       (scandir cal-root (negate hidden?))))
 
 ;;; Names of all calendars,
 ;;; this is explicitly here to be able to set colors later
-(define *calendars*
-  (map get-cal-name *cal-paths*))
+(define (get-calendar-names cal-paths)
+  (map get-cal-name cal-paths))
+
+(define (rev-filter lst filt)
+  "Like filter, but takes arguments in reverse order"
+  (filter filt lst))
 
 ;;; list of all ics-objects in filename
 ;;; parsed as if each file only had one VEVENT
 ;;; Some aux data is also stored in the object 
-(define *ics-objs*
+
+;;; ics->scm returns a list of the VCALENDAR objects in the file.
+;;; In my case there is never more than 1
+(define (get-ics-objects calendar-paths)
   (append-map (lambda (calendar-path)
          (let* ((files (get-files-in-dir calendar-path "ics"))
                 (name (get-cal-name calendar-path)))
-           (map (lambda (filename)
-                  (-> filename
-                      open-input-file
-                      ics->scm
-                      car
-                      ics-object-components
-                      car
-                      (change-class <ics-path-object>)
-                      (slot-set-ret! 'path filename)
-                      (slot-set-ret! 'calendar name)))
-                files)))
-       *cal-paths*))
-
-;;; This whole thing with summary filters should probably be
-;;; replaced with filters that can work on any field.
-;;; They should also be set in some form of config file
-;;; instead of in the program source
-
-;;; Different summary filters
-(define (no-filter _) #t)
-(define ((contains-filter string) summary)
-  (string-contains string summary))
-
-;;; Choose one summary filter
-(define summary-filter no-filter)
-;; (define summary-filter (contains-filter "THEN18"))
+           (filter
+            identity
+            (map (lambda (filename)
+                   (catch 'misc-error
+                     (lambda ()
+                       (-> filename
+                           open-input-file
+                           ics->scm
+                           car
+                           ics-object-components
+                           car
+                           (change-class <ics-path-object>)
+                           (slot-set-ret! 'path filename)
+                           (slot-set-ret! 'calendar name)))
+                     (lambda (err . args)
+                       (format (current-error-port) "~a: ~s\n" err args)
+                       #f)))
+                 files))))
+       calendar-paths))
 
 ;;; Apply it
+#; 
 (define *filtered-events*
   (filter-on-property "SUMMARY"
                       summary-filter
                       *ics-objs*))
 
 ;;; Sorted events
-(define *sevs* (sort* *filtered-events* time<? event-time)) 
+(define (sort-events events)
+  "Sortes events by start time"
+  (sort* events time<? event-time)) 
 
 
 ;;; Each element is a day, the car is a time-utc object, which
@@ -124,37 +103,15 @@ the file extension <ext>"
 ;;; 
 ;;; /Near/ defined as events closer to midnight than their zone
 ;;; offset.
-(define *group-evs*
- (group-by (compose drop-zone-offset event-date) *sevs*))
+(define (group-events events)
+  "Returns groups of elements"
+ (group-by (compose drop-zone-offset event-date) events))
 
-(define *sorted-groups*
-  (sort* *group-evs* time<? (compose date->time-utc car)))
+(define (sort-groups groups)
+  "Return groups of elementns, sorts by start date"
+  (sort* groups time<? (compose date->time-utc car)))
 
-;;; Takes a list on the form
-;;; ((date calendar-obj ...) ...)
-;;; And makes each sublist have better laid out elements.
-;;; It's not perfect if there are many elements that overlap
-;;; In different ways. But it works perfectly for a block
-;;; schedule!
-(define (fix-event-widths evs)
-  (define (fix-within-day day-evs)
-    (if (null? day-evs)
-        #f
-        (let ((ev-list day-evs))
-          (receive (overlapping rest)
-              (take-and-drop-while
-               (lambda (next)
-                 (time<? (date->time-utc (start next))
-                         (date->time-utc (end (car ev-list)))))
-               ev-list)
-            (for-each set-x! overlapping (iota 10))
-            (for-each (cut set-width! <> (/ (length overlapping)))
-                      overlapping)
-            (fix-within-day rest)))))
-  (for-each (compose fix-within-day cdr)
-            evs))
-
-(fix-event-widths *group-evs*)
+#; (fix-event-widths *group-evs*)
 
 (define *colors*
   '((red #xFF 0 0)
@@ -168,13 +125,28 @@ the file extension <ext>"
 
 ;;; These should be broken out into an HTML module
 
-(define *calendar-colors*
-  (map cons *calendars*
+(define-stream (color-stream)
+  (stream-cons (list (random #x100)
+                     (random #x100)
+                     (random #x100))
+               (color-stream)))
+
+(define (get-calendar-colors calendar-names)
+  "Returns a list of pairs between names and colors.
+cdr is either a symbol which is the name of the color,
+or a list of RGB."
+  #;
+  (stream->list (stream-map cons (list->stream calendar-names)
+                            (color-stream)))
+  (map cons calendar-names
        (map car *colors*)))
 
 (define (color-by-calendar event)
-  (assoc-ref *calendar-colors*
-             (containing-calendar event)))
+  (-> *cal-root*
+      get-cal-paths
+      get-calendar-names
+      get-calendar-colors
+      (assoc-ref (containing-calendar event))))
 
 ;;; Rewrite rules for the summaries
 ;;; TODO should be placed into some form of config file
@@ -208,7 +180,7 @@ the file extension <ext>"
                       (get-x vev))
               
              )))
-    `(div (@ (class ,(string-join `("event" ,(symbol->string color)) " " 'infix))
+    `(div (@ (class ,(string-join `("event" ,(css-ify (containing-calendar vev))) " " 'infix))
              (style ,style))
           ,(summary-proc vev))))
 
@@ -230,7 +202,7 @@ the file extension <ext>"
 
 
 ;;; Takesr a list of event groupsr
-(define (get-sxml-doc evgrps)
+(define (get-sxml-doc evgrps calendar-names)
  `(html (head
          (title "Calendar")
          (meta (@ (charset "utf-8")))
@@ -238,7 +210,17 @@ the file extension <ext>"
                   (rel "stylesheet")
                   (href "file/style.css")))
          (script (@ (src "file/jquery-3.3.1.min.js")) "")
-         (script (@ (src "file/script.js")) ""))
+         (script (@ (src "file/script.js")) "")
+         (style
+             ,@(map (lambda (cal color)
+                      (format #f ".~a { background-color: ~a; }"
+                              (css-ify cal)
+                              (if (symbol? (cdr color))
+                                  (cdr color)
+                                  (apply format #f "rgb(~a,~a,~a)"
+                                         (cdr color)))))
+                    calendar-names
+                    (get-calendar-colors calendar-names))))
         (body (span (@ (id "gen-time"))
                     ,(date->string (current-date) "Last Updated: ~c"))
               (button (@ (id "goto-today")
@@ -255,3 +237,14 @@ the file extension <ext>"
 
 
 
+
+(define (do-stuff)
+  (let* ((cal-paths (get-cal-paths *cal-root*))
+         (cal-names (-> cal-paths get-calendar-names))
+         (evgrps (-> cal-paths
+                     get-ics-objects           ; Slow
+                     sort-events
+                     group-events
+                     sort-groups)))
+    (fix-event-widths evgrps)
+    (get-sxml-doc evgrps cal-names)))

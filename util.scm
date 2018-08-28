@@ -6,7 +6,7 @@
   #:export (flatten inner intersperce file-extension sort*
             fold-multiple unique group-by path-join path-join*
             pair-map test-until-success string-car
-            take-and-drop-while))
+            take-and-drop-while hidden?))
 
 (define (flatten tree)
   "Flattens a tree, same as printing the tree
@@ -118,3 +118,19 @@ and not just the car."
 (define (take-and-drop-while pred lst)
   (values (take-while pred lst)
           (drop-while pred lst)))
+
+;;; TODO find better way to check if file is hidden
+(define (hidden? filename)
+  (string=? "." (string-take filename 1)))
+
+(define (unique list)
+  "Removes repeated elements. Same behavior as POSIX uniq (1p)."
+  (reverse (pair-fold (lambda (pair lst)
+                        (let ((a (car pair))
+                              (b (cdr pair)))
+                          (if (or (null? b)
+                                  (not (equal? a (car b))))
+                              (cons a lst)
+                              lst)))
+                      '()
+                      list)))

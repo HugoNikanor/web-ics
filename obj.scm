@@ -23,7 +23,6 @@
             containing-calendar
 
             describe-vevent
-            get-files-in-dir
             slot-set-ret!
             extract
             filter-on-property
