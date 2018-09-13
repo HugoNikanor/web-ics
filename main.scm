@@ -8,7 +8,11 @@
   (add-to-load-path here))
 
 (use-modules (web server)
-             (server-handler))
+             (server-handler)
+             (sxml simple)
+             (code))
 
 (define (main args)
-  (run-server handler 'http '(#:addr 0)))
+  #; (run-server handler 'http '(#:addr 0))
+  (with-output-to-file "/tmp/cal.html"
+    (lambda () (sxml->xml (do-stuff)))))
