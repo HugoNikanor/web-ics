@@ -60,7 +60,7 @@ body {
 .clock {
 	color: gray;
 	border-top: 1px dotted gray;
-	width: calc(100% + 5ex);
+	width: 100000; /* calc(100% + 5ex); */
 }
 
 .days > :first-child {
