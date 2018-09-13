@@ -153,7 +153,7 @@ or a list of RGB."
 (define (summary-proc vev)
   (let ((summary ((extract "SUMMARY") vev)))
     (cond ((member (containing-calendar vev)
-                   '("D1.b" "D2.b"))
+                   '("D1.b" "D2.b" "D3.b"))
            (strip-summary-liu summary))
           (else summary))))
 
