@@ -32,12 +32,6 @@ allt emedans andra into gjorde det.
    Så att tiderna och deras sträck alltid är synliga, även
    när man skrollar. En alternativ lösning är att helt
    enklet visa max ~3 dagar åt gången.
-** DONE [#C] Skicka filer med ogiltig eller ingen Mime-typ
-   Tex, =.gitignore= går för nuvarande inte att skicka
-via servern.
-
-[2018-03-12 Mon 13:37] Saker med okänd mime-typ skickas nu
-med ~*default-mime*~, vilket är satt till =text/plain=.
 ** TODO [#C] Filer med flera VEVENTS
 Varje =.ics= kan inehålla mer än ett VEVENT objekt, alla
 dessa borde sparas och inte bara det första.
@@ -47,6 +41,23 @@ till att bara spara ett VEVENT per =.ics= fil.
 
 Kan dock finnas andra objekt av vikt i en VCALENDAR
 ** Vad står =DTSTAMP= för?
+** TODO [#B] Filpath relativ nuvarande mapp
+   I server-handler finns pathen =./front=, vilket enbart fungerar om $PWD är
+   är på rätt plats. Bör ändras antingen till att filen hittar sig själv,
+   alternativt att den installerar sig någon stans.
+** TODO [#C] Statiska filer
+   För nuvarande har jag lite kod för att "servera" dem. Möjligen ska det läggas
+över till nginx (eller motsvarande). Fast troligen inte.
+** TODO [#B] Upprepande events
+** TODO Se till att stänga filer efter att de använts.
+   Guile verkar vara begränsat till ~1000 öppna filer åt gången,
+och just nu låter jag öppnade filer bara vara.
+** TODO Snabba upp =get-ics-objects=
+   Jag har inte tajmat det än, men nästan all körtide används här.
+* Server 
+** TODO [#C] Systemd service file
+** TODO [#C] Nginx site file
+** TODO [#C] Ordentliga installationsgrejer
 ** TODO [#C] Directory listings
    Do something except crash when a directory under the
    =file/= directory is accessed. Either show a listing
@@ -56,17 +67,12 @@ Kan dock finnas andra objekt av vikt i en VCALENDAR
    in på =/file/../main.scm=, men det ändrades till =/main.scm=,
    vilket 404-ade. Tror det är säkert, men bör ta en ordentlig
    titt på det.
-** TODO [#B] Filpath relativ nuvarande mapp
-   I server-handler finns pathen =./front=, vilket enbart fungerar om $PWD är
-   är på rätt plats. Bör ändras antingen till att filen hittar sig själv,
-   alternativt att den installerar sig någon stans.
-** TODO [#C] Statiska filer
-   För nuvarande har jag lite kod för att "servera" dem. Möjligen ska det läggas
-över till nginx (eller motsvarande). Fast troligen inte.
-** TODO [#C] Systemd service file
-** TODO [#C] Nginx site file
-** TODO [#C] Ordentliga installationsgrejer
-** TODO [#B] Upprepande events
+** DONE [#C] Skicka filer med ogiltig eller ingen Mime-typ
+   Tex, =.gitignore= går för nuvarande inte att skicka
+via servern.
+
+[2018-03-12 Mon 13:37] Saker med okänd mime-typ skickas nu
+med ~*default-mime*~, vilket är satt till =text/plain=.
 * Tid
 ** Datum, tider, och datumstider
    - date :: YYYYMMDD
