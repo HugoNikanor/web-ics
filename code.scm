@@ -135,9 +135,9 @@
   "Returns a list of pairs between names and colors.
 cdr is either a symbol which is the name of the color,
 or a list of RGB."
-  #;
   (stream->list (stream-map cons (list->stream calendar-names)
                             (color-stream)))
+  #;
   (map cons calendar-names
        (map car *colors*)))
 
@@ -217,7 +217,7 @@ or a list of RGB."
                               (css-ify cal)
                               (if (symbol? (cdr color))
                                   (cdr color)
-                                  (apply format #f "rgb(~a,~a,~a)"
+                                  (apply format #f "rgb(~a,~a,~a,0.9)"
                                          (cdr color)))))
                     calendar-names
                     (get-calendar-colors calendar-names))))
