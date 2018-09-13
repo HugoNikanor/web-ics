@@ -73,7 +73,11 @@
                            (change-class <ics-path-object>)
                            (slot-set-ret! 'path filename)
                            (slot-set-ret! 'calendar name)))
-                     (lambda (err . args)
+                     (lambda (err-symb fmt-port fmt-str fmt-args . args)
+                       (format (current-error-port)
+                               "~a: ~?~%" err-symb
+                               fmt-str fmt-args)
+                       #;
                        (format (current-error-port) "~a: ~s\n" err args)
                        #f)))
                  files))))

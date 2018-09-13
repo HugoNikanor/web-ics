@@ -54,6 +54,11 @@ Kan dock finnas andra objekt av vikt i en VCALENDAR
 och just nu låter jag öppnade filer bara vara.
 ** TODO Snabba upp =get-ics-objects=
    Jag har inte tajmat det än, men nästan all körtide används här.
+** TODO =get-ics-objects= felrapportering
+   Just nu står det bara vilken typ av fel det är när någonting går snätt.  Den
+   måste utviddgas till att ha information om precis vilket event som gick
+   snätt, samt möjligen ha ett system för att åtgärda det under runtime.
+   
 * Server 
 ** TODO [#C] Systemd service file
 ** TODO [#C] Nginx site file
