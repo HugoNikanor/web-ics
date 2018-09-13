@@ -20,8 +20,12 @@ function clickHandler(ev) {
     return;
 }
 
+function getDatestr () {
+    return new Date().toISOString().slice(0, 10);
+}
+
 function gotoToday() {
-    let datestr = new Date().toISOString().slice(0, 10);
+	let datestr = getDatestr();
     document.getElementById(datestr).scrollIntoView();
     /*
      * This is to scroll to the top of the page.
@@ -32,7 +36,21 @@ function gotoToday() {
     window.scrollTo(window.scrollX, -20);
 }
 
+function highlightToday() {
+	let datestr = getDatestr();
+
+	let [year, month, day] = datestr.split("-");
+	// TODO I know
+	let yeasterday = year + "-" + month + "-" + (day - 1);
+
+	$("#" + datestr)   .children(".meta").addClass("today");
+	$("#" + yeasterday).children(".meta").removeClass("today");
+}
+
 $(document).ready(function () {
     $(".event").click(clickHandler);
+
+	highlightToday();
+	setInterval(highlightToday, 10 * 1000);
 });
 

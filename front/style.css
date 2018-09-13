@@ -216,3 +216,7 @@ body {
 	top: calc(100%/24 * 10);
 	height: calc(100%/24 * 2);
 }
+
+.today {
+	background-color: yellow;
+}
