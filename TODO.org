@@ -48,17 +48,23 @@ Kan dock finnas andra objekt av vikt i en VCALENDAR
 ** TODO [#C] Statiska filer
    För nuvarande har jag lite kod för att "servera" dem. Möjligen ska det läggas
 över till nginx (eller motsvarande). Fast troligen inte.
-** TODO [#B] Upprepande events
+** TODO [#A] Upprepande events
 ** TODO Se till att stänga filer efter att de använts.
    Guile verkar vara begränsat till ~1000 öppna filer åt gången,
 och just nu låter jag öppnade filer bara vara.
-** TODO Snabba upp =get-ics-objects=
+** TODO [#B] Snabba upp =get-ics-objects=
    Jag har inte tajmat det än, men nästan all körtide används här.
-** TODO =get-ics-objects= felrapportering
+** TODO [#A] =get-ics-objects= felrapportering
    Just nu står det bara vilken typ av fel det är när någonting går snätt.  Den
    måste utviddgas till att ha information om precis vilket event som gick
    snätt, samt möjligen ha ett system för att åtgärda det under runtime.
-   
+** TODO [#B] Heldagsevents
+   Heldagsevents bör läggas i en egen spalt höggst upp, istället för
+   att låtsas vara mellan 0:00-24:00*n där n är antalet dagar eventet
+   är långt.
+** TODO [#B] Flerdagsevent
+   Ett event som håller på efter midnatt bör styckas upp och visas på
+   båda dagarna sepparat. Just nu fortsätter det bara långt neråt.
 * Server 
 ** TODO [#C] Systemd service file
 ** TODO [#C] Nginx site file
