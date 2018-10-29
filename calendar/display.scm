@@ -3,7 +3,7 @@
   #:use-module (srfi srfi-26)
   #:use-module (ice-9 receive)
   #:use-module (calendar time)
-  #:use-module (calendar obj)
+  #:use-module (calendar types ics)
   #:use-module (calendar util)
   #:export (fix-event-widths))
 

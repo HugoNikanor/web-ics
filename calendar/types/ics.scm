@@ -1,4 +1,4 @@
-(define-module (calendar obj)
+(define-module (calendar types ics)
   #:use-module (oop goops)
   #:use-module (oop goops describe)
 

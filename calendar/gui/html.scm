@@ -1,5 +1,5 @@
 (define-module (calendar gui html)
-  #:use-module (calendar obj)
+  #:use-module (calendar types ics)
   #:use-module (calendar time)
   #:use-module (calendar format) ; css-ify
   #:use-module (calendar gui color)

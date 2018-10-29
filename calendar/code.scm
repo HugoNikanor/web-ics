@@ -18,7 +18,7 @@
 
   #:use-module (calendar util)
   #:use-module (calendar format)
-  #:use-module (calendar obj)
+  #:use-module (calendar types ics)
   #:use-module (calendar time)
 
   #:use-module (calendar fs)
