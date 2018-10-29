@@ -6,7 +6,6 @@
   #:use-module (srfi srfi-1)             ; List library.
   #:use-module (srfi srfi-19)            ; Time/Date library.
   #:use-module (srfi srfi-26)            ; Specializing parameters
-  #:use-module (srfi srfi-41)            ; Streams
 
   ;; These are from my guile-libs
   #:use-module (macros arrow)
@@ -24,15 +23,23 @@
 
   #:use-module (calendar fs)
   #:use-module (calendar display)
+  #:use-module (calendar gui html)
 
   #:export (get-rand-color 
-            vev->sxml event-group->sxml get-sxml-doc
-            do-stuff))
+            vev->sxml event-group->sxml
+            load-calendars))
 
-;;; The path of the common ancestor
-(define *cal-root*
-  (path-join* (getenv "HOME")
-              ".calendars"))
+(define (load-calendars calendar-root)
+  "Load all calendars into a list."
+  (let* ((cal-paths (get-cal-paths calendar-root))
+         (cal-names (-> cal-paths get-calendar-names))
+         (evgrps (-> cal-paths
+                     get-ics-objects           ; Slow
+                     sort-events
+                     group-events
+                     sort-groups)))
+    (fix-event-widths evgrps)
+    (get-sxml-doc evgrps cal-names)))
 
 ;;; List of paths to all specific calendars, it should be
 ;;; possibly to add extra calendars to this.
@@ -44,10 +51,6 @@
 ;;; this is explicitly here to be able to set colors later
 (define (get-calendar-names cal-paths)
   (map get-cal-name cal-paths))
-
-(define (rev-filter lst filt)
-  "Like filter, but takes arguments in reverse order"
-  (filter filt lst))
 
 ;;; list of all ics-objects in filename
 ;;; parsed as if each file only had one VEVENT
@@ -119,41 +122,6 @@
 
 #; (fix-event-widths *group-evs*)
 
-(define *colors*
-  '((red #xFF 0 0)
-    (green 0 #xFF 0)
-    (blue 0 0 #xFF)
-    (purple #xFF 0 #xFF)
-    (orange #xFF #xFF 0)))
-
-(define (get-rand-color)
-  (cdr (list-ref *colors* (random (length *colors*)))))
-
-;;; These should be broken out into an HTML module
-
-(define-stream (color-stream)
-  (stream-cons (list (random #x100)
-                     (random #x100)
-                     (random #x100))
-               (color-stream)))
-
-(define (get-calendar-colors calendar-names)
-  "Returns a list of pairs between names and colors.
-cdr is either a symbol which is the name of the color,
-or a list of RGB."
-  (stream->list (stream-map cons (list->stream calendar-names)
-                            (color-stream)))
-  #;
-  (map cons calendar-names
-       (map car *colors*)))
-
-(define (color-by-calendar event)
-  (-> *cal-root*
-      get-cal-paths
-      get-calendar-names
-      get-calendar-colors
-      (assoc-ref (containing-calendar event))))
-
 ;;; Rewrite rules for the summaries
 ;;; TODO should be placed into some form of config file
 (define (summary-proc vev)
@@ -163,94 +131,3 @@ or a list of RGB."
            (strip-summary-liu summary))
           (else summary))))
 
-(define (vev->sxml vev)
-  (let* ((color (color-by-calendar vev))
-         (start-time (vevent->time "DTSTART" vev))
-         (start-date (time-utc->date start-time))
-
-         (end-time (vevent->time "DTEND" vev))
-         (end-date (time-utc->date end-time))
-
-         (duration (time-difference end-time start-time))
-         (style
-             (string-append
-              (format #f "top: calc(100%/24 * ~a);"
-                      (date->decimal-hour start-date))
-              (format #f "height: calc(100%/24 * ~a);"
-                      (time->decimal-hour duration)
-                      ;; (date->decimal-hour duration)
-                      )
-              (format #f "width: calc(100% * (~a));" (get-width vev))
-              (format #f "left: calc(100% * (~a) * (~a));"
-                      (get-width vev)
-                      (get-x vev))
-              
-             )))
-    `(div (@ (class ,(string-join `("event" ,(css-ify (containing-calendar vev))) " " 'infix))
-             (style ,style))
-          ,(summary-proc vev))))
-
-
-;;; An event group is a list where the car is a time object,
-;;; and the cdr is a list of VEVENT's
-(define (event-group->sxml evgrp)
-  (let* ((date (car evgrp))
-         (datestr (date->string date "~1")))
-    `(div (@ (class "day")
-             (id ,datestr))
-          (div (@ (class "meta"))
-               (span (@ (class "dayname"))
-                     ,(date->string date "~a"))
-               (span (@ (class "daydate"))
-                     ,datestr))
-          (div (@ (class "events"))
-               ,@ (map vev->sxml (cdr evgrp))))))
-
-
-;;; Takesr a list of event groupsr
-(define (get-sxml-doc evgrps calendar-names)
- `(html (head
-         (title "Calendar")
-         (meta (@ (charset "utf-8")))
-         (link (@ (type "text/css")
-                  (rel "stylesheet")
-                  (href "file/style.css")))
-         (script (@ (src "file/jquery-3.3.1.min.js")) "")
-         (script (@ (src "file/script.js")) "")
-         (style
-             ,@(map (lambda (cal color)
-                      (format #f ".~a { background-color: ~a; }"
-                              (css-ify cal)
-                              (if (symbol? (cdr color))
-                                  (cdr color)
-                                  (apply format #f "rgb(~a,~a,~a,0.9)"
-                                         (cdr color)))))
-                    calendar-names
-                    (get-calendar-colors calendar-names))))
-        (body (span (@ (id "gen-time"))
-                    ,(date->string (current-date) "Last Updated: ~c"))
-              (button (@ (id "goto-today")
-                         (onclick "gotoToday()"))
-                      "Goto Today")
-              (div (@ (class "calendar"))
-                   ,@ (map (lambda (time)
-                             `(div (@ (id ,(string-append "clock-" time))
-                                      (class "clock"))
-                                   ,(string-append time ":00")))
-                           (map number->string (iota 12 0 2)))
-                   (div (@ (class "days"))
-                        ,@ (map event-group->sxml evgrps))))))
-
-
-
-
-(define (do-stuff)
-  (let* ((cal-paths (get-cal-paths *cal-root*))
-         (cal-names (-> cal-paths get-calendar-names))
-         (evgrps (-> cal-paths
-                     get-ics-objects           ; Slow
-                     sort-events
-                     group-events
-                     sort-groups)))
-    (fix-event-widths evgrps)
-    (get-sxml-doc evgrps cal-names)))

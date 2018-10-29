@@ -8,8 +8,13 @@
   (add-to-load-path here))
 
 (use-modules (sxml simple)
-             (calendar code))
+             (calendar code)
+             (calendar util))
+
+(define *cal-root*
+  (path-join* (getenv "HOME")
+              ".calendars"))
 
 (define (main args)
   (with-output-to-file "/tmp/cal.html"
-    (lambda () (sxml->xml (do-stuff)))))
+    (lambda () (sxml->xml (load-calendars *cal-root*)))))

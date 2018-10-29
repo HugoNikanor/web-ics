@@ -6,7 +6,7 @@
   #:export (flatten inner intersperce file-extension sort*
             fold-multiple unique group-by path-join path-join*
             pair-map test-until-success string-car
-            take-and-drop-while hidden?))
+            take-and-drop-while hidden? rev-filter))
 
 (define (flatten tree)
   "Flattens a tree, same as printing the tree
@@ -134,3 +134,7 @@ and not just the car."
                               lst)))
                       '()
                       list)))
+
+(define (rev-filter lst filt)
+  "Like filter, but takes arguments in reverse order"
+  (filter filt lst))
