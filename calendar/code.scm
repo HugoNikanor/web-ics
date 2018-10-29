@@ -75,8 +75,10 @@
                            (slot-set-ret! 'calendar name)))
                      (lambda (err-symb fmt-port fmt-str fmt-args . args)
                        (format (current-error-port)
-                               "~a: ~?~%" err-symb
-                               fmt-str fmt-args)
+                               "~a: ~? in ~%~a~%"
+                               err-symb
+                               fmt-str fmt-args
+                               filename)
                        #;
                        (format (current-error-port) "~a: ~s\n" err args)
                        #f)))

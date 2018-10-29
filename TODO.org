@@ -1,9 +1,15 @@
 * Blandat
 ** TODO [#A] Upprepande events
-** TODO [#A] =get-ics-objects= felrapportering
+** TODO [#B] =get-ics-objects= felrapportering
    Just nu står det bara vilken typ av fel det är när någonting går snätt.  Den
    måste utviddgas till att ha information om precis vilket event som gick
    snätt, samt möjligen ha ett system för att åtgärda det under runtime.
+   
+   Varje gång den misslyckas med läsning beror det på att en rad avslutas med
+   backslash (\). Vilket bör använts för att escapa komman.
+   
+   =/home/hugo/.calendars/D3.b/3e8f42bb4cb67c31045c30d676fd5a8ea047a36ecb9501e3c00607f88d0bec48.ics=
+   
 ** TODO [#B] Saker behöver läggas ut bättre
    Looks like It only works for the first set of overlapping
 events per day.
