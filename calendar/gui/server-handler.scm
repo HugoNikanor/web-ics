@@ -1,5 +1,5 @@
 (define-module (server-handler)
-  #:use-module (code)
+  #:use-module (calendar code)
   #:use-module (sxml simple)
 
   #:use-module (output line)
@@ -13,8 +13,8 @@
 
   #:use-module (ice-9 rdelim)
 
-  #:use-module (util)
-  #:use-module (logger)
+  #:use-module (calendar util)
+  #:use-module (calendar logger)
   #:use-module (mime)
   #:export (*default-mime* handler get-document))
 
