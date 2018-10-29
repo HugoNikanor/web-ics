@@ -1,4 +1,9 @@
 * Blandat
+** TODO [#A] Upprepande events
+** TODO [#A] =get-ics-objects= felrapportering
+   Just nu står det bara vilken typ av fel det är när någonting går snätt.  Den
+   måste utviddgas till att ha information om precis vilket event som gick
+   snätt, samt möjligen ha ett system för att åtgärda det under runtime.
 ** TODO [#B] Saker behöver läggas ut bättre
    Looks like It only works for the first set of overlapping
 events per day.
@@ -28,6 +33,23 @@ och mindre från datumtider i vissa fall.
 
 Problemet berodde på att vissa objekt skapades med tidzonsoffset,
 allt emedans andra into gjorde det.
+** Vad står =DTSTAMP= för?
+** TODO [#B] Filpath relativ nuvarande mapp
+   I server-handler finns pathen =./front=, vilket enbart fungerar om $PWD är
+   är på rätt plats. Bör ändras antingen till att filen hittar sig själv,
+   alternativt att den installerar sig någon stans.
+** TODO Se till att stänga filer efter att de använts.
+   Guile verkar vara begränsat till ~1000 öppna filer åt gången,
+och just nu låter jag öppnade filer bara vara.
+** TODO [#B] Snabba upp =get-ics-objects=
+   Jag har inte tajmat det än, men nästan all körtide används här.
+** TODO [#B] Heldagsevents
+   Heldagsevents bör läggas i en egen spalt höggst upp, istället för
+   att låtsas vara mellan 0:00-24:00*n där n är antalet dagar eventet
+   är långt.
+** TODO [#B] Flerdagsevent
+   Ett event som håller på efter midnatt bör styckas upp och visas på
+   båda dagarna sepparat. Just nu fortsätter det bara långt neråt.
 ** TODO [#C] Tider på sidan bör vara relativa skärmen
    Så att tiderna och deras sträck alltid är synliga, även
    när man skrollar. En alternativ lösning är att helt
@@ -40,31 +62,9 @@ Dock är det här nerprioriterat eftersom ~vdirsyncer~ är satt
 till att bara spara ett VEVENT per =.ics= fil.
 
 Kan dock finnas andra objekt av vikt i en VCALENDAR
-** Vad står =DTSTAMP= för?
-** TODO [#B] Filpath relativ nuvarande mapp
-   I server-handler finns pathen =./front=, vilket enbart fungerar om $PWD är
-   är på rätt plats. Bör ändras antingen till att filen hittar sig själv,
-   alternativt att den installerar sig någon stans.
 ** TODO [#C] Statiska filer
    För nuvarande har jag lite kod för att "servera" dem. Möjligen ska det läggas
 över till nginx (eller motsvarande). Fast troligen inte.
-** TODO [#A] Upprepande events
-** TODO Se till att stänga filer efter att de använts.
-   Guile verkar vara begränsat till ~1000 öppna filer åt gången,
-och just nu låter jag öppnade filer bara vara.
-** TODO [#B] Snabba upp =get-ics-objects=
-   Jag har inte tajmat det än, men nästan all körtide används här.
-** TODO [#A] =get-ics-objects= felrapportering
-   Just nu står det bara vilken typ av fel det är när någonting går snätt.  Den
-   måste utviddgas till att ha information om precis vilket event som gick
-   snätt, samt möjligen ha ett system för att åtgärda det under runtime.
-** TODO [#B] Heldagsevents
-   Heldagsevents bör läggas i en egen spalt höggst upp, istället för
-   att låtsas vara mellan 0:00-24:00*n där n är antalet dagar eventet
-   är långt.
-** TODO [#B] Flerdagsevent
-   Ett event som håller på efter midnatt bör styckas upp och visas på
-   båda dagarna sepparat. Just nu fortsätter det bara långt neråt.
 * Server 
 ** TODO [#C] Systemd service file
 ** TODO [#C] Nginx site file
