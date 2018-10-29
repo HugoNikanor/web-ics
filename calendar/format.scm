@@ -1,4 +1,4 @@
-(define-module (format)
+(define-module (calendar format)
   #:use-module (ice-9 regex)
   #:export (strip-summary-liu course-code? css-ify))
 

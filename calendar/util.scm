@@ -1,4 +1,4 @@
-(define-module (util)
+(define-module (calendar util)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-8) ; receive
   #:use-module (srfi srfi-26)

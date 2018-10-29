@@ -1,10 +1,10 @@
-(define-module (display)
+(define-module (calendar display)
   #:use-module (srfi srfi-19)            ; Time/Date library.
   #:use-module (srfi srfi-26)
   #:use-module (ice-9 receive)
-  #:use-module (time)
-  #:use-module (obj)
-  #:use-module (util)
+  #:use-module (calendar time)
+  #:use-module (calendar obj)
+  #:use-module (calendar util)
   #:export (fix-event-widths))
 
 ;;; Takes a list on the form

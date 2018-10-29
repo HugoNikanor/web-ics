@@ -1,12 +1,12 @@
 ;;; Module for file system operations.
 ;;; Reads calendars from disk, and extracts some information.
 
-(define-module (fs)
+(define-module (calendar fs)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-26)
   #:use-module (ice-9 ftw)
   #:use-module (ice-9 rdelim)
-  #:use-module (util)
+  #:use-module (calendar util)
   #:export (get-cal-name get-files-in-dir))
 
 

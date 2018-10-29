@@ -8,9 +8,9 @@
   (add-to-load-path here))
 
 (use-modules (web server)
-             (server-handler)
+             (calendar server-handler)
              (sxml simple)
-             (code))
+             (calendar code))
 
 (define (main args)
   #; (run-server handler 'http '(#:addr 0))

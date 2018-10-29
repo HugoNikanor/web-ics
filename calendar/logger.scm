@@ -1,4 +1,4 @@
-(define-module (logger)
+(define-module (calendar logger)
   #:export (*log-file* log))
 
 (define *log-file* "/tmp/scheme-file")

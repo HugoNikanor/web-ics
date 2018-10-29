@@ -1,4 +1,4 @@
-(define-module (code)
+(define-module (calendar code)
   #:use-module (ics)
   #:use-module (ics type object)
   #:use-module (ics type property property)
@@ -17,13 +17,13 @@
   #:use-module (ice-9 ftw)
   #:use-module (ice-9 curried-definitions)
 
-  #:use-module (util)
-  #:use-module (format)
-  #:use-module (obj)
-  #:use-module (time)
+  #:use-module (calendar util)
+  #:use-module (calendar format)
+  #:use-module (calendar obj)
+  #:use-module (calendar time)
 
-  #:use-module (fs)
-  #:use-module (display)
+  #:use-module (calendar fs)
+  #:use-module (calendar display)
 
   #:export (get-rand-color 
             vev->sxml event-group->sxml get-sxml-doc

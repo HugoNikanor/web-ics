@@ -1,8 +1,8 @@
-(define-module (time)
+(define-module (calendar time)
   #:use-module (srfi srfi-19)            ; Time/Date library.
   #:use-module (macros arrow)
-  #:use-module (obj)
-  #:use-module (util)
+  #:use-module (calendar obj)
+  #:use-module (calendar util)
 
   #:export (drop-time
             drop-zone-offset

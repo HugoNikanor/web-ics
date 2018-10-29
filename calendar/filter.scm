@@ -1,4 +1,4 @@
-(define-module (filter)
+(define-module (calendar filter)
   #:use-modules (sfri srfi-1)
   #:export (no-filter containsfilter summary-filter))
 

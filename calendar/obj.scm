@@ -1,4 +1,4 @@
-(define-module (obj)
+(define-module (calendar obj)
   #:use-module (oop goops)
   #:use-module (oop goops describe)
 
@@ -12,7 +12,7 @@
   #:use-module (ice-9 format)
   #:use-module (ice-9 curried-definitions)
 
-  #:use-module (time)
+  #:use-module (calendar time)
 
   #:export (<ics-path-object>
 
