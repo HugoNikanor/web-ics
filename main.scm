@@ -7,12 +7,9 @@
   (add-to-load-path (string-append here "/lib/guile-lib/"))
   (add-to-load-path here))
 
-(use-modules (web server)
-             (calendar server-handler)
-             (sxml simple)
+(use-modules (sxml simple)
              (calendar code))
 
 (define (main args)
-  #; (run-server handler 'http '(#:addr 0))
   (with-output-to-file "/tmp/cal.html"
     (lambda () (sxml->xml (do-stuff)))))
