@@ -1,10 +1,8 @@
 .PHONY: all clean test tags
 
 CC      := gcc
-CFLAGS  := $(shell export PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig/; \
-	pkg-config --cflags libical) -Wall -fPIC -pthread -pedantic -ggdb
-LFLAGS  := $(shell export PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig/; \
-	pkg-config --libs libical)
+CFLAGS  := $(pkg-config --cflags libical) -Wall -fPIC -pthread -pedantic -ggdb
+LFLAGS  := $(pkg-config --libs libical)
 C_FILES := $(wildcard src/*.c)
 O_FILES := $(addprefix obj/,$(notdir $(C_FILES:.c=.o)))
 
